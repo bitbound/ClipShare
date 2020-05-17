@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using Microsoft.Extensions.Logging
-@inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 @inject Microsoft.Extensions.Logging.ILogger<Index> Logger
@@ -12,14 +11,18 @@ Welcome to your new app.
 
 @code {
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
             await base.OnInitializedAsync();
 
-            var state = await AuthStateProvider.GetAuthenticationStateAsync();
-            if (state.User.Identity.IsAuthenticated)
+            var user = (await AuthStateTask).User;
+
+            if (user.Identity.IsAuthenticated)
             {
                 NavigationManager.NavigateTo("recent");
             }
