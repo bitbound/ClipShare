@@ -1,0 +1,65 @@
+﻿@using Microsoft.Extensions.Logging
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILogger<NavMenu> Logger
+
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">Clip Share</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        @if (!IsLoggedIn)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="recent">
+                    <span class="oi oi-clock" aria-hidden="true"></span> Recent
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="archive">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span> Archive
+                </NavLink>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+
+    private bool IsLoggedIn { get; set; }
+
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        IsLoggedIn = authState.User.Identity.IsAuthenticated;
+        StateHasChanged();
+
+        AuthStateProvider.AuthenticationStateChanged += (authTask) =>
+        {
+            IsLoggedIn = authTask.Result.User.Identity.IsAuthenticated;
+            StateHasChanged();
+        };
+    }
+}
