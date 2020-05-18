@@ -13,6 +13,10 @@ using Microsoft.Extensions.Hosting;
 using System.Linq;
 using ClipShare.Server.Data;
 using ClipShare.Server.Models;
+using Microsoft.Extensions.Logging;
+using ClipShare.Server.Services;
+using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ClipShare.Server
 {
@@ -48,11 +52,14 @@ namespace ClipShare.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.AddScoped<IDataService, DataService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddProvider(new DbLoggerProvider(env, app.ApplicationServices));
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

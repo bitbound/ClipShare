@@ -9,7 +9,7 @@ namespace ClipShare.Server.Services
 {
     public interface IDataService
     {
-        void WriteLog(LogLevel logLevel, EventId eventId, string state, Exception exception, List<string> scopeStack);
+        void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack);
     }
 
     public class DataService : IDataService
@@ -21,10 +21,11 @@ namespace ClipShare.Server.Services
 
         private ApplicationDbContext DbContext { get; }
 
-        public void WriteLog(LogLevel logLevel, EventId eventId, string state, Exception exception, List<string> scopeStack)
+        public void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack)
         {
             DbContext.Logs.Add(new Models.LogEntry()
             {
+                Category = category,
                 EventId = eventId.ToString(),
                 ExceptionMessage = exception?.Message,
                 ExceptionStack = exception?.StackTrace,

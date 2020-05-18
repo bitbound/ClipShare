@@ -86,6 +86,9 @@ namespace ClipShare.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Category")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("EventId")
                         .HasColumnType("TEXT");
 

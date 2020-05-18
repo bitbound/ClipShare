@@ -69,12 +69,13 @@ namespace ClipShare.Server.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    LogLevel = table.Column<int>(nullable: false),
+                    Category = table.Column<string>(nullable: true),
                     EventId = table.Column<string>(nullable: true),
-                    State = table.Column<string>(nullable: true),
                     ExceptionMessage = table.Column<string>(nullable: true),
                     ExceptionStack = table.Column<string>(nullable: true),
+                    LogLevel = table.Column<int>(nullable: false),
                     ScopeStack = table.Column<string>(nullable: true),
+                    State = table.Column<string>(nullable: true),
                     Timestamp = table.Column<string>(nullable: false)
                 },
                 constraints: table =>

@@ -13,12 +13,18 @@ namespace ClipShare.Server.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public LogLevel LogLevel { get; set; }
+
+        public string Category { get; set; }
+
         public string EventId { get; set; }
-        public string State { get; set; }
+
         public string ExceptionMessage { get; set; }
+
         public string ExceptionStack { get; set; }
+
+        public LogLevel LogLevel { get; set; }
         public string ScopeStack { get; set; }
+        public string State { get; set; }
         public DateTimeOffset Timestamp { get; set; }
     }
 }

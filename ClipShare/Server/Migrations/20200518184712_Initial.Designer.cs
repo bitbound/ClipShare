@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClipShare.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200518151539_Initial")]
+    [Migration("20200518184712_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -87,6 +87,9 @@ namespace ClipShare.Server.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("EventId")
                         .HasColumnType("TEXT");

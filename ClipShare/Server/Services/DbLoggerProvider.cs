@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -9,19 +10,19 @@ namespace ClipShare.Server.Services
 {
     public class DbLoggerProvider : ILoggerProvider
     {
-        private readonly IDataService dataService;
         private readonly IWebHostEnvironment hostEnvironment;
+        private readonly IServiceProvider serviceProvider;
 
-        public DbLoggerProvider(IDataService dataService, IWebHostEnvironment hostEnvironment)
+        public DbLoggerProvider(IWebHostEnvironment hostEnvironment, IServiceProvider serviceProvider)
         {
-            this.dataService = dataService;
             this.hostEnvironment = hostEnvironment;
+            this.serviceProvider = serviceProvider;
         }
 
 
         public ILogger CreateLogger(string categoryName)
         {
-            return new DbLogger(categoryName, dataService, hostEnvironment);
+            return new DbLogger(categoryName, hostEnvironment, serviceProvider);
         }
 
         public void Dispose()

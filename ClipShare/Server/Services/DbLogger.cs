@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using ClipShare.Server.Data;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -7,21 +9,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using IdentityServer4.EntityFramework.Options;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ClipShare.Server.Services
 {
     public class DbLogger : ILogger
     {
         private readonly string categoryName;
-        private readonly IDataService dataService;
         private readonly IWebHostEnvironment hostEnvironment;
+        private readonly IServiceProvider serviceProvider;
+
         protected static ConcurrentStack<string> ScopeStack { get; } = new ConcurrentStack<string>();
 
-        public DbLogger(string categoryName, IDataService dataService, IWebHostEnvironment hostEnvironment)
+        public DbLogger(string categoryName, IWebHostEnvironment hostEnvironment, IServiceProvider serviceProvider)
         {
             this.categoryName = categoryName;
-            this.dataService = dataService;
             this.hostEnvironment = hostEnvironment;
+            this.serviceProvider = serviceProvider;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -57,7 +64,9 @@ namespace ClipShare.Server.Services
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            dataService.WriteLog(logLevel, eventId, state.ToString(), exception, ScopeStack.ToList());
+            using var scope = serviceProvider.CreateScope();
+            var dataService = scope.ServiceProvider.GetRequiredService<IDataService>();
+            dataService.WriteLog(logLevel, categoryName, eventId, state.ToString(), exception, ScopeStack.ToList());
         }
 
 
