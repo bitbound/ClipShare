@@ -1,0 +1,18 @@
+﻿<div class="card border-secondary mb-3" style="width: 20rem;">
+    <div class="card-header">@Header</div>
+    <div class="card-body">
+        <p class="small text-muted">@Timestamp</p>
+        <p class="card-text">@Body</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Header { get; set; }
+
+    [Parameter]
+    public DateTimeOffset Timestamp { get; set; }
+
+    [Parameter]
+    public string Body { get; set; }
+}

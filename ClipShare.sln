@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClipShare.Server", "ClipShare\Server\ClipShare.Server.csproj", "{CB119747-C770-4E1E-8CF8-B85E76B528B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipShare.Server", "ClipShare\Server\ClipShare.Server.csproj", "{CB119747-C770-4E1E-8CF8-B85E76B528B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClipShare.Client", "ClipShare\Client\ClipShare.Client.csproj", "{BFE2871D-29A1-492D-B32C-1F6BED92C099}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipShare.Client", "ClipShare\Client\ClipShare.Client.csproj", "{BFE2871D-29A1-492D-B32C-1F6BED92C099}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClipShare.Shared", "ClipShare\Shared\ClipShare.Shared.csproj", "{4199A57E-EC24-4349-B0DB-523985BE19BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipShare.Shared", "ClipShare\Shared\ClipShare.Shared.csproj", "{4199A57E-EC24-4349-B0DB-523985BE19BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

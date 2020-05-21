@@ -1,51 +1,48 @@
 ﻿@page "/recent"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@using ClipShare.Shared
+@using ClipShare.Client.Components
+@using ClipShare.Shared.Models
 @attribute [Authorize]
 @inject HttpClient Http
 
-<h1>Recent</h1>
+<h2>Recent Clips</h2>
 
-<p>This component demonstrates fetching data from the server.</p>
+<AddClipButton></AddClipButton>
 
-@if (forecasts == null)
+@if (clips == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="d-flex">
+    @foreach (var clip in clips)
+        {
+            <ClipCard Header="@GetHeader(clip)" Timestamp="clip.Timestamp" Body="clip.Contents"></ClipCard>
+        }
+    </div>
+
 }
 
 @code {
-    private WeatherForecast[] forecasts;
+    private Clip[] clips;
+
+    public string GetHeader(Clip clip)
+    {
+        if (clip.Contents.Length <= 10)
+        {
+            return clip.Contents;
+        }
+
+        return new string(clip.Contents.Take(10).ToArray()) + "...";
+    }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+            clips = await Http.GetFromJsonAsync<Clip[]>("Clips");
         }
         catch (AccessTokenNotAvailableException exception)
         {

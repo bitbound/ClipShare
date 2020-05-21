@@ -1,4 +1,5 @@
 ﻿using ClipShare.Server.Data;
+using ClipShare.Shared.Models;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace ClipShare.Server.Services
     public interface IDataService
     {
         void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack);
+        IEnumerable<Clip> GetClips(string userName);
     }
 
     public class DataService : IDataService
@@ -20,6 +22,11 @@ namespace ClipShare.Server.Services
         }
 
         private ApplicationDbContext DbContext { get; }
+
+        public IEnumerable<Clip> GetClips(string userName)
+        {
+            return DbContext.Clips.Where(x => x.Username == userName);
+        }
 
         public void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack)
         {
