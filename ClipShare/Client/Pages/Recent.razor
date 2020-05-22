@@ -16,27 +16,25 @@
 }
 else
 {
-    <div class="d-flex">
-    @foreach (var clip in clips)
+<div class="row mt-4">
+    @if (clips.Length > 0)
+    {
+        foreach (var clip in clips)
         {
-            <ClipCard Header="@GetHeader(clip)" Timestamp="clip.Timestamp" Body="clip.Contents"></ClipCard>
+            <ClipCard Timestamp="@clip.Timestamp" Body="@clip.Contents"></ClipCard>
         }
-    </div>
+    }
+    else
+    {
+        <ClipCard Timestamp="DateTimeOffset.Now" Body="Click the Add button to start saving clips."></ClipCard>
+    }
+
+</div>
 
 }
 
 @code {
     private Clip[] clips;
-
-    public string GetHeader(Clip clip)
-    {
-        if (clip.Contents.Length <= 10)
-        {
-            return clip.Contents;
-        }
-
-        return new string(clip.Contents.Take(10).ToArray()) + "...";
-    }
 
     protected override async Task OnInitializedAsync()
     {

@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using ClipShare.Server.Services;
 using System;
 using Microsoft.AspNetCore.Mvc;
+using ClipShare.Shared.Models;
 
 namespace ClipShare.Server
 {
@@ -41,11 +42,11 @@ namespace ClipShare.Server
                options.UseSqlite(
                    Configuration.GetConnectionString("SQLite")));
             
-            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ClipsUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentityServer()
-                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+                .AddApiAuthorization<ClipsUser, ApplicationDbContext>();
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();

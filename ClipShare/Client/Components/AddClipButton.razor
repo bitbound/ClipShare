@@ -1,4 +1,6 @@
 ﻿@inject IJSRuntime JS
+@inject HttpClient HttpClient
+
 <div class="floating-button bg-primary text-white" title="Add Clip" @onclick="AddClip">
     <i class="oi oi-plus"></i>
 </div>
@@ -15,7 +17,7 @@
     }
 
     .floating-button:hover {
-        transform: scale(1.2);
+        background-color: #0158a3 !important;
         transition: all .25s;
     }
 </style>
@@ -26,6 +28,6 @@
     public async Task AddClip()
     {
         var currentContent = await JS.InvokeAsync<string>("getClipboard");
-        await JS.InvokeVoidAsync("eval", $"alert('{currentContent}');");
+        await HttpClient.PostAsJsonAsync("Clips", currentContent);
     }
 } 
