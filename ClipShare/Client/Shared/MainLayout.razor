@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@using ClipShare.Client.Components 
 
 <div class="sidebar">
     <NavMenu />
@@ -12,4 +13,6 @@
     <div class="content px-4">
         @Body
     </div>
+
+    <ToastHarness></ToastHarness>
 </div>

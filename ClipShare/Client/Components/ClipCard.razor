@@ -1,5 +1,5 @@
 ﻿@inject IClipboardService ClipboardService
-@inject IJSRuntime JsRuntime
+@inject IToastService ToastService
 @inject HttpClient Http
 
 <div class="card border-secondary my-3 mr-3 clip-card" style="width: 20rem; position:unset;">
@@ -43,7 +43,7 @@
     private async Task CopyText()
     {
         await ClipboardService.SetClipboardText(Content);
-        await JsRuntime.InvokeVoidAsync("alert", "Copied to clipboard!");
+        ToastService.ShowToast("Copied to clipboard!", TimeSpan.FromSeconds(3));
     }
 
 }

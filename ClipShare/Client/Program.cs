@@ -29,6 +29,7 @@ namespace ClipShare.Client
             builder.Services.AddApiAuthorization();
 
             builder.Services.AddSingleton<IClipboardService, ClipboardService>();
+            builder.Services.AddSingleton<IToastService, ToastService>();
 
             await builder.Build().RunAsync();
         }
