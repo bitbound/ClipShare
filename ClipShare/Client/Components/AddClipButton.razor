@@ -1,28 +1,10 @@
 ﻿@using ClipShare.Shared.Models 
-@inject IJSRuntime JS
+@inject ClipShare.Client.Services.IClipboardService ClipboardService
 @inject HttpClient HttpClient
 
 <div class="floating-button bg-primary text-white" title="Add Clip" @onclick="AddClip">
     <i class="oi oi-plus"></i>
 </div>
-
-<style>
-    .floating-button {
-        float: right;
-        margin-right: 40px;
-        cursor: pointer;
-        padding: 10px;
-        border-radius: 100%;
-        line-height: 1;
-        box-shadow: 2px 2px 5px 0px rgb(25,25,25);
-        transition: background-color .5s;
-    }
-
-    .floating-button:hover {
-        background-color: #0158a3 !important;
-        transition: background-color .5s;
-    }
-</style>
 
 
 
@@ -33,7 +15,7 @@
 
     public async Task AddClip()
     {
-        var currentContent = await JS.InvokeAsync<string>("getClipboard");
+        var currentContent = await ClipboardService.GetClipboardText();
         var response = await HttpClient.PostAsJsonAsync("Clips", currentContent);
         var clip = await response.Content.ReadFromJsonAsync<Clip>();
         if (clip != null)

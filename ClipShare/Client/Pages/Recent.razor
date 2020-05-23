@@ -25,14 +25,14 @@ else
                 <div class="row">
                     @foreach (var clip in group)
                     {
-                        <ClipCard Timestamp="@clip.Timestamp" Body="@clip.Contents"></ClipCard>
+                        <ClipCard ClipId="@clip.Id" Content="@clip.Contents" Timestamp="@clip.Timestamp" OnClipDeleted="ClipDeleted"></ClipCard>
                     }
                 </div>
             }
         }
         else
         {
-            <ClipCard Timestamp="DateTimeOffset.Now" Body="Click the Add button to start saving clips."></ClipCard>
+            <ClipCard Timestamp="DateTimeOffset.Now" Content="Click the Add button to start saving clips."></ClipCard>
         }
 
     </div>
@@ -45,6 +45,11 @@ else
     private void ClipAdded(Clip clip)
     {
         Clips.Add(clip);
+    }
+
+    private void ClipDeleted(int clipId)
+    {
+        Clips.RemoveAll(x => x.Id == clipId);
     }
 
     protected override async Task OnInitializedAsync()

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Components.Authorization;
+using ClipShare.Client.Services;
 
 namespace ClipShare.Client
 {
@@ -26,6 +27,8 @@ namespace ClipShare.Client
             builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ClipShare.ServerAPI"));
 
             builder.Services.AddApiAuthorization();
+
+            builder.Services.AddSingleton<IClipboardService, ClipboardService>();
 
             await builder.Build().RunAsync();
         }

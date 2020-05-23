@@ -1,31 +1,49 @@
-﻿<div class="card border-secondary my-3 mr-3 clip-card" style="width: 20rem; position:unset;">
+﻿@inject IClipboardService ClipboardService
+@inject IJSRuntime JsRuntime
+@inject HttpClient Http
+
+<div class="card border-secondary my-3 mr-3 clip-card" style="width: 20rem; position:unset;">
     <div class="card-header small">
         @Timestamp.LocalDateTime.ToString()
-        <i class="oi oi-x float-right text-danger header-button ml-3" title="Delete"></i>
-        <i class="oi oi-pencil float-right text-primary header-button" title="Edit Text"></i>
+        <i class="oi oi-x float-right header-button ml-3" title="Delete" @onclick="DeleteClicked"></i>
+        <i class="oi oi-pencil float-right header-button" title="Edit Text"></i>
     </div>
     <div class="card-body">
-        <p class="card-text">@Body</p>
+        <div class="text-center mb-4">
+            <i class="oi oi-clipboard copy-button" title="Copy Text" @onclick="CopyText"></i>
+        </div>
+        <p class="card-text">@Content</p>
+
     </div>
 </div>
-<style>
-    .header-button {
-        cursor: pointer;
-        font-size: 1.2em;
-    }
-    .clip-card {
-        transition: border-color .5s;
-    }
-    .clip-card:hover {
-        transition: border-color .5s;
-        border-color: #007bff !important;
-    }
-</style>
+
 @code {
+
+    [Parameter]
+    public EventCallback<int> OnClipDeleted { get; set; }
+
+    [Parameter]
+    public int ClipId { get; set; }
+
+    [Parameter]
+    public string Content { get; set; }
+
     [Parameter]
     public DateTimeOffset Timestamp { get; set; }
 
-    [Parameter]
-    public string Body { get; set; }
+    private async Task DeleteClicked()
+    {
+        var response = await Http.DeleteAsync($"Clips?id={ClipId}");
+        if (response.IsSuccessStatusCode)
+        {
+            await OnClipDeleted.InvokeAsync(ClipId);
+        }
+    }
+
+    private async Task CopyText()
+    {
+        await ClipboardService.SetClipboardText(Content);
+        await JsRuntime.InvokeVoidAsync("alert", "Copied to clipboard!");
+    }
 
 }

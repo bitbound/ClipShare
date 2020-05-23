@@ -15,6 +15,7 @@ namespace ClipShare.Server.Services
         void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack);
         IEnumerable<Clip> GetClips(string userId);
         Task<Clip> AddClip(string content, string userId);
+        Task DeleteClip(int clipId, string userId);
     }
 
     public class DataService : IDataService
@@ -49,6 +50,16 @@ namespace ClipShare.Server.Services
             }
 
             return null;
+        }
+
+        public async Task DeleteClip(int clipId, string userId)
+        {
+            var user = DbContext.Users
+                .Include(x => x.Clips)
+                .FirstOrDefault(x => x.Id == userId);
+
+            user?.Clips?.RemoveAll(x => x.Id == clipId);
+            await DbContext.SaveChangesAsync();
         }
 
         public IEnumerable<Clip> GetClips(string userId)

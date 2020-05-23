@@ -18,14 +18,12 @@ namespace ClipShare.Server.Controllers
     [Authorize]
     public class ClipsController : ControllerBase
     {
-        public ClipsController(IDataService dataService, UserManager<ClipsUser> userManager)
+        public ClipsController(IDataService dataService)
         {
             DataService = dataService;
-            UserManager = userManager;
         }
 
         private IDataService DataService { get; }
-        private UserManager<ClipsUser> UserManager { get; }
 
         [HttpGet]
         public IEnumerable<Clip> Get()
@@ -39,6 +37,13 @@ namespace ClipShare.Server.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return await DataService.AddClip(clipContents, userId);
+        }
+
+        [HttpDelete]
+        public async Task Delete(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await DataService.DeleteClip(id, userId);
         }
     }
 }
