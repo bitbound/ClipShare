@@ -14,7 +14,7 @@ namespace ClipShare.Server.Services
     {
         void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack);
         IEnumerable<Clip> GetClips(string userId);
-        Task AddClip(string content, string userId);
+        Task<Clip> AddClip(string content, string userId);
     }
 
     public class DataService : IDataService
@@ -26,7 +26,7 @@ namespace ClipShare.Server.Services
 
         private ApplicationDbContext DbContext { get; }
 
-        public async Task AddClip(string content, string userId)
+        public async Task<Clip> AddClip(string content, string userId)
         {
             var user = DbContext.Users
                 .Include(x => x.Clips)
@@ -34,15 +34,21 @@ namespace ClipShare.Server.Services
 
             if (user != null)
             {
-                user.Clips.Add(new Clip()
+                var newClip = new Clip()
                 {
                     Contents = content,
                     Timestamp = DateTimeOffset.Now,
                     UserId = user.Id,
                     User = user
-                });
+                };
+
+                user.Clips.Add(newClip);
+                await DbContext.SaveChangesAsync();
+
+                return newClip;
             }
-            await DbContext.SaveChangesAsync();
+
+            return null;
         }
 
         public IEnumerable<Clip> GetClips(string userId)

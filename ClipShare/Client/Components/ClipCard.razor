@@ -1,10 +1,26 @@
-﻿<div class="card border-secondary m-3" style="width: 20rem;">
-    <div class="card-header small">@Timestamp.ToLocalTime()</div>
+﻿<div class="card border-secondary my-3 mr-3 clip-card" style="width: 20rem; position:unset;">
+    <div class="card-header small">
+        @Timestamp.LocalDateTime.ToString()
+        <i class="oi oi-x float-right text-danger header-button ml-3" title="Delete"></i>
+        <i class="oi oi-pencil float-right text-primary header-button" title="Edit Text"></i>
+    </div>
     <div class="card-body">
         <p class="card-text">@Body</p>
     </div>
 </div>
-
+<style>
+    .header-button {
+        cursor: pointer;
+        font-size: 1.2em;
+    }
+    .clip-card {
+        transition: border-color .5s;
+    }
+    .clip-card:hover {
+        transition: border-color .5s;
+        border-color: #007bff !important;
+    }
+</style>
 @code {
     [Parameter]
     public DateTimeOffset Timestamp { get; set; }

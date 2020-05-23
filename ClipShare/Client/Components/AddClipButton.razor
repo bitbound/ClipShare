@@ -1,4 +1,5 @@
-﻿@inject IJSRuntime JS
+﻿@using ClipShare.Shared.Models 
+@inject IJSRuntime JS
 @inject HttpClient HttpClient
 
 <div class="floating-button bg-primary text-white" title="Add Clip" @onclick="AddClip">
@@ -14,20 +15,30 @@
         border-radius: 100%;
         line-height: 1;
         box-shadow: 2px 2px 5px 0px rgb(25,25,25);
+        transition: background-color .5s;
     }
 
     .floating-button:hover {
         background-color: #0158a3 !important;
-        transition: all .25s;
+        transition: background-color .5s;
     }
 </style>
 
 
 
 @code {
+
+    [Parameter]
+    public EventCallback<Clip> OnClipAdded { get; set; }
+
     public async Task AddClip()
     {
         var currentContent = await JS.InvokeAsync<string>("getClipboard");
-        await HttpClient.PostAsJsonAsync("Clips", currentContent);
+        var response = await HttpClient.PostAsJsonAsync("Clips", currentContent);
+        var clip = await response.Content.ReadFromJsonAsync<Clip>();
+        if (clip != null)
+        {
+            await OnClipAdded.InvokeAsync(clip);
+        }
     }
 } 

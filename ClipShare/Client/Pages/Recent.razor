@@ -8,39 +8,54 @@
 
 <h2>Recent Clips</h2>
 
-<AddClipButton></AddClipButton>
+<AddClipButton OnClipAdded="ClipAdded"></AddClipButton>
 
-@if (clips == null)
+@if (Clips == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-<div class="row mt-4">
-    @if (clips.Length > 0)
-    {
-        foreach (var clip in clips)
+    <div class="mt-4">
+        @if (Clips.Count > 0)
         {
-            <ClipCard Timestamp="@clip.Timestamp" Body="@clip.Contents"></ClipCard>
+            foreach (var group in Clips.OrderByDescending(x => x.Timestamp).GroupBy(x => x.Timestamp.Date))
+            {
+                <div class="lead mt-4">@group.Key.ToShortDateString()</div>
+                <div class="row">
+                    @foreach (var clip in group)
+                    {
+                        <ClipCard Timestamp="@clip.Timestamp" Body="@clip.Contents"></ClipCard>
+                    }
+                </div>
+            }
         }
-    }
-    else
-    {
-        <ClipCard Timestamp="DateTimeOffset.Now" Body="Click the Add button to start saving clips."></ClipCard>
-    }
+        else
+        {
+            <ClipCard Timestamp="DateTimeOffset.Now" Body="Click the Add button to start saving clips."></ClipCard>
+        }
 
-</div>
+    </div>
 
 }
 
 @code {
-    private Clip[] clips;
+    private List<Clip> Clips { get; } = new List<Clip>();
+
+    private void ClipAdded(Clip clip)
+    {
+        Clips.Add(clip);
+    }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            clips = await Http.GetFromJsonAsync<Clip[]>("Clips");
+            var clips = await Http.GetFromJsonAsync<Clip[]>("Clips");
+            if (clips?.Any() == true)
+            {
+                Clips.AddRange(clips);
+            }
         }
         catch (AccessTokenNotAvailableException exception)
         {

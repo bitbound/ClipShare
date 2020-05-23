@@ -35,10 +35,10 @@ namespace ClipShare.Server.Controllers
         }
 
         [HttpPost]
-        public async Task Post([FromBody]string clipContents)
+        public async Task<Clip> Post([FromBody]string clipContents)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await DataService.AddClip(clipContents, userId);
+            return await DataService.AddClip(clipContents, userId);
         }
     }
 }
