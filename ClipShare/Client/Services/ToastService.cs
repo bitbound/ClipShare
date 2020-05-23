@@ -16,7 +16,7 @@ namespace ClipShare.Client.Services
 
         event EventHandler OnToastsChanged;
 
-        void ShowToast(string message, TimeSpan expiration, string classString = null);
+        void ShowToast(string message, TimeSpan expiration, string classString = null, string styleOverrides = null);
     }
 
     public class ToastService : IToastService
@@ -28,7 +28,8 @@ namespace ClipShare.Client.Services
 
         public void ShowToast(string message,
             TimeSpan expiration,
-            string classString = null)
+            string classString = null,
+            string styleOverrides = null)
         {
 
             if (string.IsNullOrWhiteSpace(classString))
@@ -36,7 +37,7 @@ namespace ClipShare.Client.Services
                 classString = "bg-info text-white";
             };
 
-            var toastModel = new Toast(Guid.NewGuid().ToString(), message, classString, expiration);
+            var toastModel = new Toast(Guid.NewGuid().ToString(), message, classString, expiration, styleOverrides);
             ToastCache.AddOrUpdate(toastModel.Guid, toastModel, (k, v) => toastModel);
             OnToastsChanged?.Invoke(this, null);
             var timer = new Timer(expiration.Add(TimeSpan.FromSeconds(1)).TotalMilliseconds);

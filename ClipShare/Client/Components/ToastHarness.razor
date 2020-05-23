@@ -3,7 +3,7 @@
 <div class="toast-harness">
     @foreach (var toast in Toasts)
     {
-        <div class="toast-message @toast.ClassString" style="animation-delay: @(toast.Expiration.TotalMilliseconds.ToString() + "ms");">
+        <div class="toast-message @toast.ClassString" style="animation-delay: @(toast.Expiration.TotalMilliseconds.ToString() + "ms"); @toast.StyleOverrides">
             @toast.Message
         </div>
     }
