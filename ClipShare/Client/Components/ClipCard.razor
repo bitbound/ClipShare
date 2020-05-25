@@ -6,7 +6,7 @@
     <div class="card-header small">
         @Timestamp.LocalDateTime.ToString()
         <i class="oi oi-x float-right header-button ml-3" title="Delete" @onclick="DeleteClicked"></i>
-        <i class="oi oi-pencil float-right header-button" title="Edit Text"></i>
+        <i class="oi oi-pencil float-right header-button" title="Edit Text" @onclick="ShowModal"></i>
     </div>
     <div class="card-body">
         <div class="text-center mb-4">
@@ -16,6 +16,12 @@
 
     </div>
 </div>
+
+<Modal Header="Edit Clip" OkButtonText="Save" @ref="ClipModal" OnModalOkayed="SaveEdits" OnModalCancelled="CancelEdits">
+    <div>
+        <textarea class="w-100" @bind="NewContent"></textarea>
+    </div>
+</Modal>
 
 @code {
 
@@ -29,7 +35,24 @@
     public string Content { get; set; }
 
     [Parameter]
+    public string NewContent { get; set; }
+
+    [Parameter]
     public DateTimeOffset Timestamp { get; set; }
+
+    private Modal ClipModal { get; set; }
+
+    private Task CancelEdits()
+    {
+        NewContent = Content;
+        return Task.CompletedTask;
+    }
+
+    private async Task CopyText()
+    {
+        await ClipboardService.SetClipboardText(Content);
+        ToastService.ShowToast("Copied to clipboard!", TimeSpan.FromSeconds(3));
+    }
 
     private async Task DeleteClicked()
     {
@@ -40,10 +63,24 @@
         }
     }
 
-    private async Task CopyText()
+    private async Task SaveEdits()
     {
-        await ClipboardService.SetClipboardText(Content);
-        ToastService.ShowToast("Copied to clipboard!", TimeSpan.FromSeconds(3));
+        var updatedClip = new Clip();
+        var response = await Http.PutAsJsonAsync("Clips", updatedClip, System.Threading.CancellationToken.None);
+        if (response.IsSuccessStatusCode)
+        {
+            // TODO
+        }
+        else
+        {
+
+        }
+    }
+
+    private void ShowModal()
+    {
+        NewContent = Content;
+        ClipModal.ShowModal();
     }
 
 }

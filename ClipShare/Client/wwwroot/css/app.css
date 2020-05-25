@@ -4,7 +4,7 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-a, .btn-link {
+/*a, .btn-link {
     color: #0366d6;
 }
 
@@ -12,7 +12,7 @@ a, .btn-link {
     color: #fff;
     background-color: #1b6ec2;
     border-color: #1861ac;
-}
+}*/
 
 app {
     position: relative;
@@ -47,8 +47,8 @@ app {
 }
 
 .sidebar {
-    /*background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);*/
-    background-image: linear-gradient(180deg, #0089ff 0%, #00325f 70%);
+    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+/*    background-image: linear-gradient(180deg, #0089ff 0%, #00325f 70%);*/
 }
 
     .sidebar .top-row {
@@ -222,7 +222,7 @@ app {
 }
 
     .copy-button:hover {
-        background-color: #007bff;
+        background-color: #8d30c4;
         color: white;
         transition: all .25s;
     }
@@ -242,6 +242,11 @@ app {
 }
 
     .floating-button:hover {
-        background-color: #0158a3 !important;
+        background-color: #8d30c4 !important;
         transition: background-color .5s;
     }
+
+/* Modal */
+.modal {
+    background-color: rgba(0,0,0,0.5);
+}

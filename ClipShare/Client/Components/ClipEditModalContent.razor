@@ -1,0 +1,24 @@
+﻿@implements IModalChild
+
+<div>
+    <textarea class="w-100" @bind="Content"></textarea>
+</div>
+
+@code {
+    [Parameter]
+    public int ClipId { get; set; }
+
+    [Parameter]
+    public string Content { get; set; }
+
+
+    public Task ModalOkayed()
+    {
+        Console.WriteLine("Saved");
+        return Task.CompletedTask;
+    }
+    public Task ModalCancelled()
+    {
+        return Task.CompletedTask;
+    }
+}

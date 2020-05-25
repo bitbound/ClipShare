@@ -1,0 +1,73 @@
+﻿<div class="modal fade @ModalShowClass" style="@ModalDisplayStyle">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Header</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+            <div class="modal-footer">
+                @if (!string.IsNullOrWhiteSpace(OkButtonText))
+                {
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" @onclick="ModalOkayed">@OkButtonText</button>
+                }
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="ModalCancelled">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public Func<Task> OnModalCancelled { get; set; }
+
+    [Parameter]
+    public Func<Task> OnModalOkayed { get; set; }
+
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string Header { get; set; }
+
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public string OkButtonText { get; set; }
+
+    private string ModalDisplayStyle { get; set; }
+
+    private string ModalShowClass { get; set; }
+
+    public void ShowModal()
+    {
+        ModalShowClass = "show";
+        ModalDisplayStyle = "display: block;";
+        StateHasChanged();
+    }
+
+    private async Task ModalCancelled()
+    {
+        ModalShowClass = "";
+        await Task.Delay(500);
+        ModalDisplayStyle = "display: none;";
+        await OnModalCancelled?.Invoke();
+    }
+
+    private async Task ModalOkayed()
+    {
+        ModalShowClass = "";
+        await Task.Delay(500);
+        ModalDisplayStyle = "display: none;";
+        await OnModalOkayed?.Invoke();
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+
+        return base.OnInitializedAsync();
+    }
+}
