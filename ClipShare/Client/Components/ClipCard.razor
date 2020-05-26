@@ -12,7 +12,7 @@
         <div class="text-center mb-4">
             <i class="oi oi-clipboard copy-button" title="Copy Text" @onclick="CopyText"></i>
         </div>
-        <p class="card-text">@Content</p>
+        <p class="card-text">@GetDisplayContent()</p>
 
     </div>
 </div>
@@ -63,17 +63,31 @@
         }
     }
 
-    private async Task SaveEdits()
+    private string GetDisplayContent()
     {
-        var updatedClip = new Clip();
-        var response = await Http.PutAsJsonAsync("Clips", updatedClip, System.Threading.CancellationToken.None);
-        if (response.IsSuccessStatusCode)
+        if (Content.Length < 500)
         {
-            // TODO
+            return Content;
         }
         else
         {
+            return new string(Content.ToCharArray().Take(500).ToArray()) + " . . .";
+        }
+    }
 
+    private async Task SaveEdits()
+    {
+        var updatedClip = new Clip()
+        {
+            Id = ClipId,
+            Contents = NewContent,
+            Timestamp = Timestamp
+        };
+        var response = await Http.PutAsJsonAsync("Clips", updatedClip, System.Threading.CancellationToken.None);
+        if (response.IsSuccessStatusCode)
+        {
+            Content = NewContent;
+            StateHasChanged();
         }
     }
 

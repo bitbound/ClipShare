@@ -45,5 +45,12 @@ namespace ClipShare.Server.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return DataService.DeleteClip(id, userId);
         }
+
+        [HttpPut]
+        public Task Put([FromBody]Clip clip)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return DataService.UpdateClip(clip, userId);
+        }
     }
 }
