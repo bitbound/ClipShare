@@ -4,10 +4,27 @@
 @inject IJSRuntime JsRuntime
 @inject Microsoft.Extensions.Logging.ILogger<Index> Logger
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
+<div class="text-center mt-5" style="margin-bottom:150px">
+    <h1>
+        ClipShare
+    </h1>
+    <div class="lead">
+        Share your clipboard across devices.
+    </div>
+    <div class="mt-5">
+        <div>
+            <a href="/Identity/Account/Login" class="btn btn-primary btn-lg">
+                Login
+            </a>
+        </div>
+        
+        <div class="mt-3">
+            <a href="/Identity/Account/Register" class="btn btn-secondary btn-lg">
+                Register
+            </a>
+        </div>
+    </div>
+</div>
 
 @code {
 

@@ -29,5 +29,12 @@ namespace ClipShare.Server.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return DataService.GetArchiveFolders(userId);
         }
+
+        [HttpPost]
+        public Task<ArchiveFolder> Post([FromBody] string archiveFolderName)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return DataService.AddArchiveFolder(archiveFolderName, userId);
+        }
     }
 }

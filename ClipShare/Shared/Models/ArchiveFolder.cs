@@ -9,13 +9,15 @@ namespace ClipShare.Shared.Models
 {
     public class ArchiveFolder
     {
+        public const int MaxNameLength = 300;
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         public List<Clip> Clips { get; set; }
 
-        [StringLength(300)]
+        [StringLength(MaxNameLength)]
         public string Name { get; set; }
 
         [JsonIgnore]

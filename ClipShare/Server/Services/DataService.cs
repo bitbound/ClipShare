@@ -12,6 +12,8 @@ namespace ClipShare.Server.Services
 {
     public interface IDataService
     {
+        Task<ArchiveFolder> AddArchiveFolder(string archiveFolderName, string userId);
+
         Task<Clip> AddClip(string content, string userId);
 
         Task DeleteClip(int clipId, string userId);
@@ -33,6 +35,30 @@ namespace ClipShare.Server.Services
         }
 
         private ApplicationDbContext DbContext { get; }
+
+        public async Task<ArchiveFolder> AddArchiveFolder(string archiveFolderName, string userId)
+        {
+            var user = DbContext.Users
+               .Include(x => x.ArchiveFolders)
+               .FirstOrDefault(x => x.Id == userId);
+
+            if (user != null)
+            {
+                var newFolder = new ArchiveFolder()
+                {
+                    Name = archiveFolderName,
+                    User = user,
+                    UserId = user.Id
+                };
+
+                user.ArchiveFolders.Add(newFolder);
+                await DbContext.SaveChangesAsync();
+
+                return newFolder;
+            }
+
+            return null;
+        }
 
         public async Task<Clip> AddClip(string content, string userId)
         {
@@ -69,20 +95,6 @@ namespace ClipShare.Server.Services
             await DbContext.SaveChangesAsync();
         }
 
-        public IEnumerable<Clip> GetClips(string userId)
-        {
-            var clips = DbContext.Users
-                .Include(x => x.Clips)
-                .FirstOrDefault(x => x.Id == userId)
-                ?.Clips;
-
-            if (clips == null)
-            {
-                return Array.Empty<Clip>();
-            }
-            return clips;
-        }
-
         public IEnumerable<ArchiveFolder> GetArchiveFolders(string userId)
         {
             var archives = DbContext.Users
@@ -97,6 +109,19 @@ namespace ClipShare.Server.Services
             return archives;
         }
 
+        public IEnumerable<Clip> GetClips(string userId)
+        {
+            var clips = DbContext.Users
+                .Include(x => x.Clips)
+                .FirstOrDefault(x => x.Id == userId)
+                ?.Clips;
+
+            if (clips == null)
+            {
+                return Array.Empty<Clip>();
+            }
+            return clips;
+        }
         public async Task UpdateClip(Clip clip, string userId)
         {
             var user = DbContext.Users

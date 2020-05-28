@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClipShare.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200528010115_Initial")]
+    [Migration("20200528033028_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

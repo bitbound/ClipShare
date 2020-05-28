@@ -42,7 +42,7 @@ namespace ClipShare.Server
                options.UseSqlite(
                    Configuration.GetConnectionString("SQLite")));
             
-            services.AddDefaultIdentity<ClipsUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ClipsUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentityServer()

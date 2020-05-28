@@ -1,5 +1,5 @@
-﻿@inject IClipboardService ClipboardService
-@inject IToastService ToastService
+﻿@inject IClipboardService Clipboard
+@inject IToastService Toasts
 @inject HttpClient Http
 
 <div class="card border-secondary my-3 mr-3 clip-card" style="width: 20rem; position:unset;">
@@ -27,14 +27,27 @@
         </div>
         <h5>Archive to Folder</h5>
         <div class="form-group">
-            <InputSelect @bind-Value="ClipData.ArchiveFolderId" class="form-control">
+            <select class="form-control" @onchange="ArchiveFolderChanged">
                 <option>Select an archive folder...</option>
 
-                @foreach (var archive in ArchiveFolders)
+                @foreach (var archive in ArchiveFolders.OrderBy(x=>x.Name))
                 {
-                    <option value="@archive.Id">@archive.Name</option>
+                    if (archive.Id == ClipData.ArchiveFolderId)
+                    {
+                        <option value="@archive.Id" selected="selected">@archive.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@archive.Id">@archive.Name</option>
+                    }
                 }
-            </InputSelect>
+            </select>
+        </div>
+        <div class="form-group">
+            <input @bind="newArchiveName" class="form-control" placeholder="Create a new archive folder..." @onkeypress="NewArchiveInputKeyPress" />
+            <div class="text-right mt-2">
+                <button class="btn btn-secondary" @onclick="CreateNewArchiveFolder">Add</button>
+            </div>
         </div>
     </EditForm>
 </Modal>
@@ -47,8 +60,11 @@
 
     private string previousContent;
 
+    private string newArchiveName;
+
     [Parameter]
     public EventCallback<Clip> OnClipDeleted { get; set; }
+
 
     [Parameter]
     public Clip ClipData { get; set; }
@@ -56,6 +72,20 @@
     private Modal ClipModal { get; set; }
 
 
+    private void ArchiveFolderChanged(ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value.ToString(), out var result))
+        {
+            ClipData.ArchiveFolderId = result;
+            ClipData.ArchiveFolder = ArchiveFolders.FirstOrDefault(x => x.Id == result);
+        }
+        else
+        {
+            ClipData.ArchiveFolderId = null;
+            ClipData.ArchiveFolder = null;
+
+        }
+    }
 
     private Task CancelEdits()
     {
@@ -65,8 +95,36 @@
 
     private async Task CopyText()
     {
-        await ClipboardService.SetClipboardText(ClipData.Content);
-        ToastService.ShowToast("Copied to clipboard!", TimeSpan.FromSeconds(3));
+        await Clipboard.SetClipboardText(ClipData.Content);
+        Toasts.ShowToast("Copied to clipboard!", TimeSpan.FromSeconds(3));
+    }
+
+    private async Task CreateNewArchiveFolder()
+    {
+        if (string.IsNullOrWhiteSpace(newArchiveName))
+        {
+            Toasts.ShowToast("Archive folder name required.", TimeSpan.FromSeconds(3), "bg-warning");
+            return;
+        }
+        if (newArchiveName.Length > ArchiveFolder.MaxNameLength)
+        {
+            Toasts.ShowToast($"Name must be less than {ArchiveFolder.MaxNameLength} characters.", TimeSpan.FromSeconds(3), "bg-warning");
+            return;
+        }
+
+        var response = await Http.PostAsJsonAsync("Archives", newArchiveName);
+        if (response.IsSuccessStatusCode)
+        {
+            var newFolder = await response.Content.ReadFromJsonAsync<ArchiveFolder>();
+            if (newFolder != null)
+            {
+                ArchiveFolders.Add(newFolder);
+            }
+        }
+
+        newArchiveName = null;
+
+        StateHasChanged();
     }
 
     private async Task DeleteClicked()
@@ -90,12 +148,20 @@
         }
     }
 
+    private async Task NewArchiveInputKeyPress(KeyboardEventArgs args)
+    {
+        if (args.Key.Equals("Enter", StringComparison.OrdinalIgnoreCase))
+        {
+            await CreateNewArchiveFolder();
+        }
+    }
+
     private async Task SaveEdits()
     {
         if (!editContext.Validate())
         {
             ClipData.Content = previousContent;
-            ToastService.ShowToast("Clipboard is too large.", TimeSpan.FromSeconds(3), "bg-danger");
+            Toasts.ShowToast("Clipboard is too large.", TimeSpan.FromSeconds(3), "bg-danger");
             StateHasChanged();
             return;
         }
@@ -113,9 +179,9 @@
         ClipModal.ShowModal();
     }
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         editContext = new EditContext(ClipData);
-        return base.OnInitializedAsync();
+        ArchiveFolders.AddRange(await Http.GetFromJsonAsync<List<ArchiveFolder>>("Archives"));
     }
 }
