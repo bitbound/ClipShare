@@ -52,14 +52,38 @@ namespace ClipShare.Server.Migrations
                     b.ToTable("Logs");
                 });
 
+            modelBuilder.Entity("ClipShare.Shared.Models.ArchiveFolder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(300);
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ArchiveFolders");
+                });
+
             modelBuilder.Entity("ClipShare.Shared.Models.Clip", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Contents")
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("ArchiveFolderId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(5000);
 
                     b.Property<string>("Timestamp")
                         .IsRequired()
@@ -69,6 +93,8 @@ namespace ClipShare.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ArchiveFolderId");
 
                     b.HasIndex("UserId");
 
@@ -136,7 +162,7 @@ namespace ClipShare.Server.Migrations
                         .IsUnique()
                         .HasName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers");
+                    b.ToTable("ClipsUsers");
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
@@ -270,58 +296,6 @@ namespace ClipShare.Server.Migrations
                     b.ToTable("AspNetRoleClaims");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("LockoutEnd")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ClipsUser");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -405,8 +379,19 @@ namespace ClipShare.Server.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("ClipShare.Shared.Models.ArchiveFolder", b =>
+                {
+                    b.HasOne("ClipShare.Shared.Models.ClipsUser", "User")
+                        .WithMany("ArchiveFolders")
+                        .HasForeignKey("UserId");
+                });
+
             modelBuilder.Entity("ClipShare.Shared.Models.Clip", b =>
                 {
+                    b.HasOne("ClipShare.Shared.Models.ArchiveFolder", "ArchiveFolder")
+                        .WithMany("Clips")
+                        .HasForeignKey("ArchiveFolderId");
+
                     b.HasOne("ClipShare.Shared.Models.ClipsUser", "User")
                         .WithMany("Clips")
                         .HasForeignKey("UserId");

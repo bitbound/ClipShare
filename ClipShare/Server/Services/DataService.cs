@@ -12,11 +12,17 @@ namespace ClipShare.Server.Services
 {
     public interface IDataService
     {
-        void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack);
-        IEnumerable<Clip> GetClips(string userId);
         Task<Clip> AddClip(string content, string userId);
+
         Task DeleteClip(int clipId, string userId);
+
+        IEnumerable<ArchiveFolder> GetArchiveFolders(string userId);
+
+        IEnumerable<Clip> GetClips(string userId);
+
         Task UpdateClip(Clip clip, string userId);
+
+        void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack);
     }
 
     public class DataService : IDataService
@@ -38,7 +44,7 @@ namespace ClipShare.Server.Services
             {
                 var newClip = new Clip()
                 {
-                    Contents = content,
+                    Content = content,
                     Timestamp = DateTimeOffset.Now,
                     UserId = user.Id,
                     User = user
@@ -77,6 +83,20 @@ namespace ClipShare.Server.Services
             return clips;
         }
 
+        public IEnumerable<ArchiveFolder> GetArchiveFolders(string userId)
+        {
+            var archives = DbContext.Users
+                 .Include(x => x.ArchiveFolders)
+                 .FirstOrDefault(x => x.Id == userId)
+                 ?.ArchiveFolders;
+
+            if (archives == null)
+            {
+                return Array.Empty<ArchiveFolder>();
+            }
+            return archives;
+        }
+
         public async Task UpdateClip(Clip clip, string userId)
         {
             var user = DbContext.Users
@@ -86,7 +106,8 @@ namespace ClipShare.Server.Services
             if (user != null)
             {
                 var savedClip = user.Clips.FirstOrDefault(x => x.Id == clip.Id);
-                savedClip.Contents = clip.Contents;
+                savedClip.Content = clip.Content;
+                savedClip.ArchiveFolderId = clip.ArchiveFolderId;
                 await DbContext.SaveChangesAsync();
             }
         }

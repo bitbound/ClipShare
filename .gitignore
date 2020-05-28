@@ -339,3 +339,5 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /ClipShare/Server/ClipShare.db
+/ClipShare/Server/ClipShare.db-shm
+/ClipShare/Server/ClipShare.db-wal

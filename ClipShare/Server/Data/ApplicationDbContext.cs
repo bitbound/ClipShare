@@ -24,6 +24,7 @@ namespace ClipShare.Server.Data
 
         public DbSet<LogEntry> Logs { get; set; }
         public DbSet<Clip> Clips { get; set; }
+        public DbSet<ArchiveFolder> ArchiveFolders { get; set; }
 
         public new DbSet<ClipsUser> Users { get; set; }
 
@@ -31,11 +32,15 @@ namespace ClipShare.Server.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<IdentityUser>().ToTable("ClipsUser");
+            builder.Entity<ClipsUser>().ToTable("ClipsUsers");
 
             builder.Entity<ClipsUser>()
                 .HasMany(x => x.Clips)
                 .WithOne(x => x.User);
+            builder.Entity<ClipsUser>()
+                .HasMany(x => x.ArchiveFolders)
+                .WithOne(x => x.User);
+
           
             if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
             {

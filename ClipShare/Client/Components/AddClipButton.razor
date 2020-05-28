@@ -1,5 +1,6 @@
 ﻿@using ClipShare.Shared.Models 
-@inject ClipShare.Client.Services.IClipboardService ClipboardService
+@inject IClipboardService ClipboardService
+@inject IToastService ToastService
 @inject HttpClient HttpClient
 
 <div class="floating-button bg-primary text-white" title="Add Clip" @onclick="AddClip">
@@ -16,6 +17,11 @@
     public async Task AddClip()
     {
         var currentContent = await ClipboardService.GetClipboardText();
+        if (string.IsNullOrWhiteSpace(currentContent))
+        {
+            ToastService.ShowToast("Clipboard is empty.", TimeSpan.FromSeconds(3), "bg-warning");
+            return;
+        }
         var response = await HttpClient.PostAsJsonAsync("Clips", currentContent);
         var clip = await response.Content.ReadFromJsonAsync<Clip>();
         if (clip != null)

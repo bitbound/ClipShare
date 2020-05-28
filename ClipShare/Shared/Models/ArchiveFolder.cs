@@ -7,24 +7,19 @@ using System.Text.Json.Serialization;
 
 namespace ClipShare.Shared.Models
 {
-    public class Clip
+    public class ArchiveFolder
     {
-        [StringLength(5_000)]
-        public string Content { get; set; }
-
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public DateTimeOffset Timestamp { get; set; }
+        public List<Clip> Clips { get; set; }
+
+        [StringLength(300)]
+        public string Name { get; set; }
 
         [JsonIgnore]
         public ClipsUser User { get; set; }
-
         public string UserId { get; set; }
-
-        [JsonIgnore]
-        public ArchiveFolder ArchiveFolder { get; set; }
-        public int? ArchiveFolderId { get; set; }
     }
 }

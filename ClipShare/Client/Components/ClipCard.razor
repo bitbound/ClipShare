@@ -4,9 +4,9 @@
 
 <div class="card border-secondary my-3 mr-3 clip-card" style="width: 20rem; position:unset;">
     <div class="card-header small">
-        @Timestamp.LocalDateTime.ToString()
+        @ClipData.Timestamp.LocalDateTime.ToString()
         <i class="oi oi-x float-right header-button ml-3" title="Delete" @onclick="DeleteClicked"></i>
-        <i class="oi oi-pencil float-right header-button" title="Edit Text" @onclick="ShowModal"></i>
+        <i class="oi oi-pencil float-right header-button" title="Edit Text" @onclick="ShowEditModal"></i>
     </div>
     <div class="card-body">
         <div class="text-center mb-4">
@@ -18,83 +18,104 @@
 </div>
 
 <Modal Header="Edit Clip" OkButtonText="Save" @ref="ClipModal" OnModalOkayed="SaveEdits" OnModalCancelled="CancelEdits">
-    <div>
-        <textarea class="w-100" @bind="NewContent"></textarea>
-    </div>
+    <EditForm EditContext="editContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <h5>Content</h5>
+        <div class="form-group">
+            <InputTextArea class="w-100" @bind-Value="ClipData.Content"></InputTextArea>
+        </div>
+        <h5>Archive to Folder</h5>
+        <div class="form-group">
+            <InputSelect @bind-Value="ClipData.ArchiveFolderId" class="form-control">
+                <option>Select an archive folder...</option>
+
+                @foreach (var archive in ArchiveFolders)
+                {
+                    <option value="@archive.Id">@archive.Name</option>
+                }
+            </InputSelect>
+        </div>
+    </EditForm>
 </Modal>
 
 @code {
 
-    [Parameter]
-    public EventCallback<int> OnClipDeleted { get; set; }
+    private List<ArchiveFolder> ArchiveFolders { get; } = new List<ArchiveFolder>();
+
+    private EditContext editContext;
+
+    private string previousContent;
 
     [Parameter]
-    public int ClipId { get; set; }
+    public EventCallback<Clip> OnClipDeleted { get; set; }
 
     [Parameter]
-    public string Content { get; set; }
-
-    [Parameter]
-    public string NewContent { get; set; }
-
-    [Parameter]
-    public DateTimeOffset Timestamp { get; set; }
+    public Clip ClipData { get; set; }
 
     private Modal ClipModal { get; set; }
 
+
+
     private Task CancelEdits()
     {
-        NewContent = Content;
+        ClipData.Content = previousContent;
         return Task.CompletedTask;
     }
 
     private async Task CopyText()
     {
-        await ClipboardService.SetClipboardText(Content);
+        await ClipboardService.SetClipboardText(ClipData.Content);
         ToastService.ShowToast("Copied to clipboard!", TimeSpan.FromSeconds(3));
     }
 
     private async Task DeleteClicked()
     {
-        var response = await Http.DeleteAsync($"Clips?id={ClipId}");
+        var response = await Http.DeleteAsync($"Clips?id={ClipData.Id}");
         if (response.IsSuccessStatusCode)
         {
-            await OnClipDeleted.InvokeAsync(ClipId);
+            await OnClipDeleted.InvokeAsync(ClipData);
         }
     }
 
     private string GetDisplayContent()
     {
-        if (Content.Length < 500)
+        if (ClipData.Content.Length < 500)
         {
-            return Content;
+            return ClipData.Content;
         }
         else
         {
-            return new string(Content.ToCharArray().Take(500).ToArray()) + " . . .";
+            return new string(ClipData.Content.ToCharArray().Take(500).ToArray()) + " . . .";
         }
     }
 
     private async Task SaveEdits()
     {
-        var updatedClip = new Clip()
+        if (!editContext.Validate())
         {
-            Id = ClipId,
-            Contents = NewContent,
-            Timestamp = Timestamp
-        };
-        var response = await Http.PutAsJsonAsync("Clips", updatedClip, System.Threading.CancellationToken.None);
+            ClipData.Content = previousContent;
+            ToastService.ShowToast("Clipboard is too large.", TimeSpan.FromSeconds(3), "bg-danger");
+            StateHasChanged();
+            return;
+        }
+
+        var response = await Http.PutAsJsonAsync("Clips", ClipData, System.Threading.CancellationToken.None);
         if (response.IsSuccessStatusCode)
         {
-            Content = NewContent;
             StateHasChanged();
         }
     }
 
-    private void ShowModal()
+    private void ShowEditModal()
     {
-        NewContent = Content;
+        previousContent = ClipData.Content;
         ClipModal.ShowModal();
     }
 
+    protected override Task OnInitializedAsync()
+    {
+        editContext = new EditContext(ClipData);
+        return base.OnInitializedAsync();
+    }
 }

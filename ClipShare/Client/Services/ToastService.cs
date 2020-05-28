@@ -25,6 +25,8 @@ namespace ClipShare.Client.Services
         public List<Toast> Toasts => ToastCache.Values.ToList();
         private ConcurrentDictionary<string, Toast> ToastCache { get; } = new ConcurrentDictionary<string, Toast>();
 
+        private Timer ClearToastsTimer { get; set; }
+
 
         public void ShowToast(string message,
             TimeSpan expiration,
@@ -34,20 +36,24 @@ namespace ClipShare.Client.Services
 
             if (string.IsNullOrWhiteSpace(classString))
             {
-                classString = "bg-info text-white";
+                classString = "bg-success text-white";
             };
 
             var toastModel = new Toast(Guid.NewGuid().ToString(), message, classString, expiration, styleOverrides);
             ToastCache.AddOrUpdate(toastModel.Guid, toastModel, (k, v) => toastModel);
             OnToastsChanged?.Invoke(this, null);
-            var timer = new Timer(expiration.Add(TimeSpan.FromSeconds(1)).TotalMilliseconds);
-            timer.AutoReset = false;
-            timer.Elapsed += (s, e) =>
+
+            ClearToastsTimer?.Dispose();
+            ClearToastsTimer = new Timer(ToastCache.Values.Max(x => x.Expiration.TotalMilliseconds) + 5000)
             {
-                ToastCache.Remove(toastModel.Guid, out _);
+                AutoReset = false
+            };
+            ClearToastsTimer.Elapsed += (s, e) =>
+            {
+                ToastCache.Clear();
                 OnToastsChanged?.Invoke(this, null);
             };
-            timer.Start();
+            ClearToastsTimer.Start();
         }
     }
 }

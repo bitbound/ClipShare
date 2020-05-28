@@ -9,5 +9,6 @@ namespace ClipShare.Shared.Models
     public class ClipsUser : IdentityUser
     {
         public List<Clip> Clips { get; set; }
+        public List<ArchiveFolder> ArchiveFolders { get; set; }
     }
 }
