@@ -18,13 +18,12 @@ namespace ClipShare.Shared.Models
 
         public DateTimeOffset Timestamp { get; set; }
 
-        [JsonIgnore]
         public ClipsUser User { get; set; }
 
         public string UserId { get; set; }
 
-        [JsonIgnore]
         public ArchiveFolder ArchiveFolder { get; set; }
+
         public int? ArchiveFolderId { get; set; }
     }
 }

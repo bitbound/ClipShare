@@ -26,7 +26,7 @@ namespace ClipShare.Server.Controllers
         private IDataService DataService { get; }
 
         [HttpGet]
-        public IEnumerable<Clip> Get()
+        public Task<IEnumerable<Clip>> Get()
         {
             var userId  = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return DataService.GetClips(userId);

@@ -1,8 +1,6 @@
 ﻿@page "/recent"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@using ClipShare.Client.Components
-@using ClipShare.Shared.Models
 @attribute [Authorize]
 @inject HttpClient Http
 
@@ -19,13 +17,16 @@ else
     <div class="mt-4">
         @if (Clips.Count > 0)
         {
-            foreach (var group in Clips.OrderByDescending(x => x.Timestamp).GroupBy(x => x.Timestamp.Date))
+            foreach (var group in Clips
+                .Where(x => x.ArchiveFolder == null)
+                .OrderByDescending(x => x.Timestamp)
+                .GroupBy(x => x.Timestamp.Date))
             {
                 <div class="lead mt-4">@group.Key.ToShortDateString()</div>
                 <div class="row">
                     @foreach (var clip in group)
                     {
-                        <ClipCard ClipData="clip" OnClipDeleted="ClipDeleted"></ClipCard>
+                        <ClipCard ClipData="clip" ArchiveFolders="ArchiveFolders" OnClipDeleted="ClipDeleted" OnClipChanged="ClipChanged"></ClipCard>
                     }
                 </div>
             }
@@ -40,6 +41,7 @@ else
 }
 
 @code {
+    private List<ArchiveFolder> ArchiveFolders { get; } = new List<ArchiveFolder>();
 
     private List<Clip> Clips { get; } = new List<Clip>();
 
@@ -60,6 +62,18 @@ else
         Clips.Add(clip);
     }
 
+    private void ClipChanged(Clip clipData)
+    {
+        var index = Clips.FindIndex(x => x.Id == clipData.Id);
+        if (index > -1)
+        {
+            Clips[index] = clipData;
+            Console.WriteLine("State changed.  Folder: " + Clips[index].ArchiveFolder.Name);
+            Console.WriteLine("State changed.  Folder: " + clipData.ArchiveFolder.Name);
+            StateHasChanged();
+        }
+    }
+
     private void ClipDeleted(Clip clipData)
     {
         Clips.RemoveAll(x => x.Id == clipData.Id);
@@ -73,6 +87,12 @@ else
             if (clips?.Any() == true)
             {
                 Clips.AddRange(clips);
+            }
+
+            var folders = await Http.GetFromJsonAsync<List<ArchiveFolder>>("Archives");
+            if (folders?.Any() == true)
+            {
+                ArchiveFolders.AddRange(folders);
             }
         }
         catch (AccessTokenNotAvailableException exception)

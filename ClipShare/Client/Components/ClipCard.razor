@@ -27,8 +27,12 @@
         </div>
         <h5>Archive to Folder</h5>
         <div class="form-group">
-            <select class="form-control" @onchange="ArchiveFolderChanged">
-                <option>Select an archive folder...</option>
+            <select class="form-control" @bind="ClipData.ArchiveFolderId">
+
+                @if (ClipData.ArchiveFolder is null)
+                {
+                    <option value="">Select an archive folder...</option>
+                }
 
                 @foreach (var archive in ArchiveFolders.OrderBy(x=>x.Name))
                 {
@@ -44,7 +48,7 @@
             </select>
         </div>
         <div class="form-group">
-            <input @bind="newArchiveName" class="form-control" placeholder="Create a new archive folder..." @onkeypress="NewArchiveInputKeyPress" />
+            <input @bind="newArchiveName" @bind:event="oninput" class="form-control" placeholder="Create a new archive folder..." />
             <div class="text-right mt-2">
                 <button class="btn btn-secondary" @onclick="CreateNewArchiveFolder">Add</button>
             </div>
@@ -54,8 +58,6 @@
 
 @code {
 
-    private List<ArchiveFolder> ArchiveFolders { get; } = new List<ArchiveFolder>();
-
     private EditContext editContext;
 
     private string previousContent;
@@ -63,29 +65,18 @@
     private string newArchiveName;
 
     [Parameter]
+    public EventCallback<Clip> OnClipChanged { get; set; }
+
+    [Parameter]
     public EventCallback<Clip> OnClipDeleted { get; set; }
 
+    [Parameter]
+    public List<ArchiveFolder> ArchiveFolders { get; set; } = new List<ArchiveFolder>();
 
     [Parameter]
     public Clip ClipData { get; set; }
 
     private Modal ClipModal { get; set; }
-
-
-    private void ArchiveFolderChanged(ChangeEventArgs args)
-    {
-        if (int.TryParse(args.Value.ToString(), out var result))
-        {
-            ClipData.ArchiveFolderId = result;
-            ClipData.ArchiveFolder = ArchiveFolders.FirstOrDefault(x => x.Id == result);
-        }
-        else
-        {
-            ClipData.ArchiveFolderId = null;
-            ClipData.ArchiveFolder = null;
-
-        }
-    }
 
     private Task CancelEdits()
     {
@@ -148,13 +139,6 @@
         }
     }
 
-    private async Task NewArchiveInputKeyPress(KeyboardEventArgs args)
-    {
-        if (args.Key.Equals("Enter", StringComparison.OrdinalIgnoreCase))
-        {
-            await CreateNewArchiveFolder();
-        }
-    }
 
     private async Task SaveEdits()
     {
@@ -166,10 +150,12 @@
             return;
         }
 
+        ClipData.ArchiveFolder = ArchiveFolders.Find(x => x.Id == ClipData.ArchiveFolderId);
         var response = await Http.PutAsJsonAsync("Clips", ClipData, System.Threading.CancellationToken.None);
         if (response.IsSuccessStatusCode)
         {
             StateHasChanged();
+            await OnClipChanged.InvokeAsync(ClipData);
         }
     }
 
@@ -182,6 +168,5 @@
     protected override async Task OnInitializedAsync()
     {
         editContext = new EditContext(ClipData);
-        ArchiveFolders.AddRange(await Http.GetFromJsonAsync<List<ArchiveFolder>>("Archives"));
     }
 }

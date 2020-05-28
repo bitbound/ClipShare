@@ -15,13 +15,14 @@ namespace ClipShare.Shared.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [JsonIgnore]
         public List<Clip> Clips { get; set; }
 
         [StringLength(MaxNameLength)]
         public string Name { get; set; }
 
-        [JsonIgnore]
         public ClipsUser User { get; set; }
+
         public string UserId { get; set; }
     }
 }

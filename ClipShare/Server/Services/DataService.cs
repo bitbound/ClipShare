@@ -20,7 +20,7 @@ namespace ClipShare.Server.Services
 
         IEnumerable<ArchiveFolder> GetArchiveFolders(string userId);
 
-        IEnumerable<Clip> GetClips(string userId);
+        Task<IEnumerable<Clip>> GetClips(string userId);
 
         Task UpdateClip(Clip clip, string userId);
 
@@ -109,10 +109,11 @@ namespace ClipShare.Server.Services
             return archives;
         }
 
-        public IEnumerable<Clip> GetClips(string userId)
+        public async Task<IEnumerable<Clip>> GetClips(string userId)
         {
             var clips = DbContext.Users
                 .Include(x => x.Clips)
+                .ThenInclude(x => x.ArchiveFolder)
                 .FirstOrDefault(x => x.Id == userId)
                 ?.Clips;
 
@@ -120,6 +121,11 @@ namespace ClipShare.Server.Services
             {
                 return Array.Empty<Clip>();
             }
+
+            clips.RemoveAll(x => DateTimeOffset.Now - x.Timestamp > TimeSpan.FromDays(30));
+
+            await DbContext.SaveChangesAsync();
+
             return clips;
         }
         public async Task UpdateClip(Clip clip, string userId)

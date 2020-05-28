@@ -2,19 +2,101 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @attribute [Authorize]
+@inject HttpClient Http
 
 
-<h1>Archive</h1>
+<h2>Archive</h2>
 
-<p>Current count: @currentCount</p>
+@if (Clips == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="mt-4">
+        @if (Clips.Count > 0)
+        {
+            foreach (var group in Clips
+                .Where(x => x.ArchiveFolder != null)
+                .OrderBy(x => x.ArchiveFolder.Name)
+                .GroupBy(x => x.ArchiveFolder.Name))
+            {
+                <div class="lead mt-4">@group.Key</div>
+                <div class="row">
+                    @foreach (var clip in group)
+                    {
+                        <ClipCard ClipData="clip" ArchiveFolders="ArchiveFolders"  OnClipDeleted="ClipDeleted" OnClipChanged="ClipChanged"></ClipCard>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <ClipCard ClipData="DemoClip"></ClipCard>
+        }
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+    </div>
+
+}
 
 @code {
-    private int currentCount = 0;
+    private List<ArchiveFolder> ArchiveFolders { get; } = new List<ArchiveFolder>();
 
-    private void IncrementCount()
+    private List<Clip> Clips { get; } = new List<Clip>();
+
+    private Clip DemoClip
     {
-        currentCount++;
+        get
+        {
+            return new Clip()
+            {
+                Timestamp = DateTimeOffset.Now,
+                Content = "Click the Add button to start saving clips."
+            };
+        }
+    }
+
+    private void ClipAdded(Clip clip)
+    {
+        Clips.Add(clip);
+    }
+
+    private void ClipDeleted(Clip clipData)
+    {
+        Clips.RemoveAll(x => x.Id == clipData.Id);
+    }
+
+    private void ClipChanged(Clip clipData)
+    {
+        var index = Clips.FindIndex(x => x.Id == clipData.Id);
+        if (index > -1)
+        {
+            Clips[index] = clipData;
+            Console.WriteLine("State changed.  Folder: " + Clips[index].ArchiveFolder.Name);
+            Console.WriteLine("State changed.  Folder: " + clipData.ArchiveFolder.Name);
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var clips = await Http.GetFromJsonAsync<Clip[]>("Clips");
+            if (clips?.Any() == true)
+            {
+                Clips.AddRange(clips);
+            }
+
+            var folders = await Http.GetFromJsonAsync<List<ArchiveFolder>>("Archives");
+            if (folders?.Any() == true)
+            {
+                ArchiveFolders.AddRange(folders);
+            }
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
     }
 }

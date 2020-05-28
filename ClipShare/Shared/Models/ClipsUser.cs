@@ -2,13 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace ClipShare.Shared.Models
 {
     public class ClipsUser : IdentityUser
     {
+        [JsonIgnore]
         public List<Clip> Clips { get; set; }
+
+        [JsonIgnore]
         public List<ArchiveFolder> ArchiveFolders { get; set; }
     }
 }
