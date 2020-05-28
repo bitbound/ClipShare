@@ -25,6 +25,13 @@ namespace ClipShare.Server.Controllers
 
         private IDataService DataService { get; }
 
+        [HttpDelete]
+        public Task Delete(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return DataService.DeleteClip(id, userId);
+        }
+
         [HttpGet]
         public Task<IEnumerable<Clip>> Get()
         {
@@ -38,14 +45,6 @@ namespace ClipShare.Server.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return DataService.AddClip(clipContents, userId);
         }
-
-        [HttpDelete]
-        public Task Delete(int id)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return DataService.DeleteClip(id, userId);
-        }
-
         [HttpPut]
         public Task Put([FromBody]Clip clip)
         {

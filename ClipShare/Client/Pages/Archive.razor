@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @attribute [Authorize]
 @inject HttpClient Http
-
+@inject IJSRuntime JsRuntime
 
 <h2>Archive</h2>
 
@@ -13,29 +13,30 @@
 }
 else
 {
-    <div class="mt-4">
-        @if (Clips.Count > 0)
+<div class="mt-4">
+    @if (Clips.Count > 0)
+    {
+        foreach (var folder in ArchiveFolders.OrderBy(x => x.Name))
         {
-            foreach (var group in Clips
-                .Where(x => x.ArchiveFolder != null)
-                .OrderBy(x => x.ArchiveFolder.Name)
-                .GroupBy(x => x.ArchiveFolder.Name))
+            <div class="lead mt-4">
+                @folder.Name
+                <button type="button" class="close ml-4" aria-hidden="true" style="float:none"
+                        @onclick="async () => await DeleteFolder(folder)">&times;</button>
+            </div>
+            @foreach (var clip in Clips
+               .Where(x => x.ArchiveFolderId == folder.Id)
+               .OrderByDescending(x => x.Timestamp))
             {
-                <div class="lead mt-4">@group.Key</div>
-                <div class="row">
-                    @foreach (var clip in group)
-                    {
-                        <ClipCard ClipData="clip" ArchiveFolders="ArchiveFolders"  OnClipDeleted="ClipDeleted" OnClipChanged="ClipChanged"></ClipCard>
-                    }
-                </div>
+                <ClipCard ClipData="clip" ArchiveFolders="ArchiveFolders" OnClipDeleted="ClipDeleted" OnClipChanged="ClipChanged"></ClipCard>
             }
         }
-        else
-        {
-            <ClipCard ClipData="DemoClip"></ClipCard>
-        }
+    }
+    else
+    {
+        <ClipCard ClipData="DemoClip"></ClipCard>
+    }
 
-    </div>
+</div>
 
 }
 
@@ -72,9 +73,22 @@ else
         if (index > -1)
         {
             Clips[index] = clipData;
-            Console.WriteLine("State changed.  Folder: " + Clips[index].ArchiveFolder.Name);
-            Console.WriteLine("State changed.  Folder: " + clipData.ArchiveFolder.Name);
             StateHasChanged();
+        }
+    }
+
+    private async Task DeleteFolder(ArchiveFolder folder)
+    {
+        var confirmMessage = $"Are you sure you want to delete folder {folder.Name} and all its clips?";
+        var result = await JsRuntime.InvokeAsync<bool>("invokeConfirm", confirmMessage);
+        if (result)
+        {
+            var response = await Http.DeleteAsync($"Archives?folderId={folder.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                ArchiveFolders.Remove(folder);
+                StateHasChanged();
+            }
         }
     }
 

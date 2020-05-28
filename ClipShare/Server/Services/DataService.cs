@@ -25,6 +25,7 @@ namespace ClipShare.Server.Services
         Task UpdateClip(Clip clip, string userId);
 
         void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack);
+        Task DeleteArchive(int id, string userId);
     }
 
     public class DataService : IDataService
@@ -83,6 +84,26 @@ namespace ClipShare.Server.Services
             }
 
             return null;
+        }
+
+        public async Task DeleteArchive(int archiveId, string userId)
+        {
+            var user = DbContext.Users
+              .Include(x => x.ArchiveFolders)
+              .ThenInclude(x => x.Clips)
+              .FirstOrDefault(x => x.Id == userId);
+
+            var archive = user?.ArchiveFolders?.FirstOrDefault(x => x.Id == archiveId);
+            if (archive == null)
+            {
+                return;
+            }
+            if (archive.Clips?.Any() == true)
+            {
+                DbContext.Clips.RemoveRange(archive.Clips);
+            }
+            DbContext.ArchiveFolders.Remove(archive);
+            await DbContext.SaveChangesAsync();
         }
 
         public async Task DeleteClip(int clipId, string userId)

@@ -23,6 +23,13 @@ namespace ClipShare.Server.Controllers
 
         private IDataService DataService { get; }
 
+        [HttpDelete]
+        public Task Delete(int folderId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return DataService.DeleteArchive(folderId, userId);
+        }
+
         [HttpGet]
         public IEnumerable<ArchiveFolder> Get()
         {
