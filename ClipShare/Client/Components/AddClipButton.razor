@@ -22,6 +22,11 @@
             ToastService.ShowToast("Clipboard is empty.", TimeSpan.FromSeconds(3), "bg-warning");
             return;
         }
+        if (currentContent.Length > Clip.MaxContentLength)
+        {
+            ToastService.ShowToast("Clipboard is too large.", TimeSpan.FromSeconds(3), "bg-warning");
+            return;
+        }
         var response = await HttpClient.PostAsJsonAsync("Clips", currentContent);
         var clip = await response.Content.ReadFromJsonAsync<Clip>();
         if (clip != null)

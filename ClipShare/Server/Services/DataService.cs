@@ -16,16 +16,19 @@ namespace ClipShare.Server.Services
 
         Task<Clip> AddClip(string content, string userId);
 
+        Task DeleteArchive(int id, string userId);
+
         Task DeleteClip(int clipId, string userId);
 
         IEnumerable<ArchiveFolder> GetArchiveFolders(string userId);
 
         Task<IEnumerable<Clip>> GetClips(string userId);
 
+        Task<List<Models.LogEntry>> GetLogs();
+
         Task UpdateClip(Clip clip, string userId);
 
         void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack);
-        Task DeleteArchive(int id, string userId);
     }
 
     public class DataService : IDataService
@@ -39,6 +42,12 @@ namespace ClipShare.Server.Services
 
         public async Task<ArchiveFolder> AddArchiveFolder(string archiveFolderName, string userId)
         {
+            if (archiveFolderName?.Length > ArchiveFolder.MaxNameLength)
+            {
+                throw new ArgumentOutOfRangeException(nameof(archiveFolderName));
+            }
+
+
             var user = DbContext.Users
                .Include(x => x.ArchiveFolders)
                .FirstOrDefault(x => x.Id == userId);
@@ -63,6 +72,11 @@ namespace ClipShare.Server.Services
 
         public async Task<Clip> AddClip(string content, string userId)
         {
+            if (content?.Length > Clip.MaxContentLength)
+            {
+                throw new ArgumentOutOfRangeException(nameof(content));
+            }
+
             var user = DbContext.Users
                 .Include(x => x.Clips)
                 .FirstOrDefault(x => x.Id == userId);
@@ -149,8 +163,19 @@ namespace ClipShare.Server.Services
 
             return clips;
         }
+
+        public async Task<List<Models.LogEntry>> GetLogs()
+        {
+            return await DbContext.Logs.ToListAsync();
+        }
+
         public async Task UpdateClip(Clip clip, string userId)
         {
+            if (clip?.Content?.Length > Clip.MaxContentLength)
+            {
+                throw new ArgumentOutOfRangeException(nameof(clip.Content));
+            }
+
             var user = DbContext.Users
                   .Include(x => x.Clips)
                   .FirstOrDefault(x => x.Id == userId);

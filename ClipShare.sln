@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipShare.Client", "ClipSha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipShare.Shared", "ClipShare\Shared\ClipShare.Shared.csproj", "{4199A57E-EC24-4349-B0DB-523985BE19BC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipShare.Tests", "ClipShare.Tests\ClipShare.Tests.csproj", "{E52DA5DC-CABA-45B4-ACBF-C6CBA3209AC2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Folder", "Solution Folder", "{A18D92AE-E394-4259-A4AC-7E1A64654979}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,10 @@ Global
 		{4199A57E-EC24-4349-B0DB-523985BE19BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4199A57E-EC24-4349-B0DB-523985BE19BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4199A57E-EC24-4349-B0DB-523985BE19BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E52DA5DC-CABA-45B4-ACBF-C6CBA3209AC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E52DA5DC-CABA-45B4-ACBF-C6CBA3209AC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E52DA5DC-CABA-45B4-ACBF-C6CBA3209AC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E52DA5DC-CABA-45B4-ACBF-C6CBA3209AC2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

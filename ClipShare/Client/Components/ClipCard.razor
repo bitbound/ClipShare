@@ -165,7 +165,7 @@
         ClipModal.ShowModal();
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         editContext = new EditContext(ClipData);
     }

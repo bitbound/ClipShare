@@ -9,7 +9,9 @@ namespace ClipShare.Shared.Models
 {
     public class Clip
     {
-        [StringLength(5_000)]
+        public const int MaxContentLength = 5_000;
+
+        [StringLength(MaxContentLength)]
         public string Content { get; set; }
 
         [Key]

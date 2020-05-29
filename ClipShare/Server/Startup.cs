@@ -18,6 +18,7 @@ using ClipShare.Server.Services;
 using System;
 using Microsoft.AspNetCore.Mvc;
 using ClipShare.Shared.Models;
+using System.Diagnostics;
 
 namespace ClipShare.Server
 {
@@ -58,9 +59,13 @@ namespace ClipShare.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(ApplicationDbContext dbContext,
+            IApplicationBuilder app, 
+            IWebHostEnvironment env, 
+            ILoggerFactory loggerFactory)
         {
             loggerFactory.AddProvider(new DbLoggerProvider(env, app.ApplicationServices));
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -90,6 +95,15 @@ namespace ClipShare.Server
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
             });
+
+            try
+            {
+                dbContext.Database.Migrate();
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail("Failed to migrate database.", ex.Message);
+            }
         }
     }
 }
