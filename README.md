@@ -2,6 +2,7 @@
 
 A Blazor WebAssembly app for sharing your clipboard across devices.
 
+[![Build Status](https://dev.azure.com/translucency/ClipShare/_apis/build/status/Prod%20Deploy?branchName=master)](https://dev.azure.com/translucency/ClipShare/_build/latest?definitionId=20&branchName=master)
 
 ## Building
 
