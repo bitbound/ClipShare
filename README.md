@@ -1,6 +1,6 @@
 # ClipShare
 
-A Blazor WebAssembly app for sharing your clipboard across devices.
+A Blazor WebAssembly SPA app for sharing your clipboard across devices.
 
 [![Build Status](https://dev.azure.com/translucency/ClipShare/_apis/build/status/Prod%20Deploy?branchName=master)](https://dev.azure.com/translucency/ClipShare/_build/latest?definitionId=20&branchName=master)
 
@@ -16,6 +16,7 @@ A Blazor WebAssembly app for sharing your clipboard across devices.
 * In development environment, a built-in certificate is used for signing tokens that are used by the browser for authenticating/authorizing against the API endpoints.
 * In production, you will need to supply a certiicate in `appsettings.json` or `appsettings.Production.json`.
     * This certificate can be self-signed.
+* Official docs: https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-api-authorization?view=aspnetcore-3.1#deploy-to-production
 
 Here's an example appsettings.Production.json file that uses the site's TLS/SSL certificate:
 ```
