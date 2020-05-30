@@ -55,3 +55,16 @@ Modals are used directly as components.  They have parameters for header, child 
 
 Files:
 * ClipShare.Client/Components/Modal.razor.
+
+#### Database Logger
+The built-in logging for ASP.NET Core via the ILogger interface has logging providers for Debug, Console, and Windows Event Log.
+To add file or database logging, you have to implement your own provider.
+
+The Server project shows how to implement a logger that writes to an Entity Framework Core ApplicationDbContext.
+
+Notice in the implemented DbLogger.Log method, `IServiceProvider.CreateScope` is used.  This is necessary to consume
+the scoped `IDataService` (which depends on ApplicationDbContext) within a singleton service.
+
+Files:
+* ClipShare.Server/Services/DbLogger.cs.
+* ClipShare.Server/Services.DbLoggerProvider.cs.
