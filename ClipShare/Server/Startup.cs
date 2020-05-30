@@ -64,8 +64,6 @@ namespace ClipShare.Server
             IWebHostEnvironment env, 
             ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddProvider(new DbLoggerProvider(env, app.ApplicationServices));
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -104,6 +102,9 @@ namespace ClipShare.Server
             {
                 Debug.Fail("Failed to migrate database.", ex.Message);
             }
+
+            loggerFactory.AddProvider(new DbLoggerProvider(env, app.ApplicationServices));
+
         }
     }
 }
