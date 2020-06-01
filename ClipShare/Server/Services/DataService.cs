@@ -191,6 +191,15 @@ namespace ClipShare.Server.Services
 
         public void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack)
         {
+            var expiredLogs = DbContext.Logs
+                .ToList()
+                .Where(x => DateTime.Now - x.Timestamp > TimeSpan.FromDays(30));
+
+            if (expiredLogs?.Any() == true)
+            {
+                DbContext.Logs.RemoveRange(expiredLogs);
+            }
+
             DbContext.Logs.Add(new Models.LogEntry()
             {
                 Category = category,
