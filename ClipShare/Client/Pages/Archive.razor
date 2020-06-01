@@ -7,7 +7,7 @@
 
 <h2>Archive</h2>
 
-@if (Clips == null)
+@if (!dataLoaded)
 {
     <p><em>Loading...</em></p>
 }
@@ -41,6 +41,8 @@ else
 }
 
 @code {
+    bool dataLoaded;
+
     private List<ArchiveFolder> ArchiveFolders { get; } = new List<ArchiveFolder>();
 
     private List<Clip> Clips { get; } = new List<Clip>();
@@ -111,6 +113,10 @@ else
         catch (AccessTokenNotAvailableException exception)
         {
             exception.Redirect();
+        }
+        finally
+        {
+            dataLoaded = true;
         }
     }
 }
