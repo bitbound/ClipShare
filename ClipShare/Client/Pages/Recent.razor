@@ -15,7 +15,7 @@
 else
 {
     <div class="mt-4">
-        @if (Clips.Count > 0)
+        @if (Clips.Any(x => x.ArchiveFolder == null))
         {
             foreach (var group in Clips
                 .Where(x => x.ArchiveFolder == null)
@@ -70,8 +70,6 @@ else
         if (index > -1)
         {
             Clips[index] = clipData;
-            Console.WriteLine("State changed.  Folder: " + Clips[index].ArchiveFolder.Name);
-            Console.WriteLine("State changed.  Folder: " + clipData.ArchiveFolder.Name);
             StateHasChanged();
         }
     }
