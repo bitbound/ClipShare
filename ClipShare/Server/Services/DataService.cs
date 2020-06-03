@@ -191,6 +191,12 @@ namespace ClipShare.Server.Services
 
         public void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, List<string> scopeStack)
         {
+            // Prevent re-entrancy.
+            if (eventId.Name?.Contains("EntityFrameworkCore") == true)
+            {
+                return;
+            }
+
             var expiredLogs = DbContext.Logs
                 .ToList()
                 .Where(x => DateTime.Now - x.Timestamp > TimeSpan.FromDays(30));
