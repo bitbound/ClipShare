@@ -19,6 +19,8 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using ClipShare.Shared.Models;
 using System.Diagnostics;
+using IdentityServer4.Configuration;
+using IdentityServer4.Extensions;
 
 namespace ClipShare.Server
 {
@@ -73,6 +75,11 @@ namespace ClipShare.Server
             }
             else
             {
+                app.Use(async (ctx, next) =>
+                {
+                    ctx.SetIdentityServerOrigin(Configuration["PublicOrigin"]);
+                    await next();
+                });
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
