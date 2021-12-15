@@ -10,7 +10,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using IdentityServer4.EntityFramework.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 

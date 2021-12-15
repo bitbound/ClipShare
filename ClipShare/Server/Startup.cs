@@ -19,8 +19,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using ClipShare.Shared.Models;
 using System.Diagnostics;
-using IdentityServer4.Configuration;
-using IdentityServer4.Extensions;
+using Duende.IdentityServer.Extensions;
 
 namespace ClipShare.Server
 {
