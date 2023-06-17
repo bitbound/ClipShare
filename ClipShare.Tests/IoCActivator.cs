@@ -51,11 +51,11 @@ namespace ClipShare.Tests
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<AppDb>(options =>
              options.UseInMemoryDatabase("Remotely"));
 
             services.AddIdentity<ClipsUser, IdentityRole>(options => options.Stores.MaxLengthForKeys = 128)
-             .AddEntityFrameworkStores<ApplicationDbContext>()
+             .AddEntityFrameworkStores<AppDb>()
              .AddDefaultUI()
              .AddDefaultTokenProviders();
 

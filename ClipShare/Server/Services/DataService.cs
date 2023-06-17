@@ -33,12 +33,12 @@ namespace ClipShare.Server.Services
 
     public class DataService : IDataService
     {
-       public DataService(ApplicationDbContext dbContext)
+       public DataService(AppDb dbContext)
         {
             DbContext = dbContext;
         }
 
-        private ApplicationDbContext DbContext { get; }
+        private AppDb DbContext { get; }
 
         public async Task<ArchiveFolder> AddArchiveFolder(string archiveFolderName, string userId)
         {

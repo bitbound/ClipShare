@@ -40,7 +40,7 @@ namespace ClipShare.Tests
 
         private static void ClearData()
         {
-            var dbContext = IoCActivator.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var dbContext = IoCActivator.ServiceProvider.GetRequiredService<AppDb>();
             dbContext.Clips.RemoveRange(dbContext.Clips.ToList());
             dbContext.ArchiveFolders.RemoveRange(dbContext.ArchiveFolders.ToList());
             dbContext.Users.RemoveRange(dbContext.Users.ToList());
