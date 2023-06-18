@@ -1,0 +1,50 @@
+﻿.header-button {
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.clip-card {
+    transition: box-shadow .5s;
+    width: 20rem;
+    position: unset;
+    padding: 0;
+}
+
+    .clip-card:hover {
+        transition: box-shadow .5s;
+        box-shadow: 2px 2px 5px 0px rgb(200,200,200);
+    }
+
+.header-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-content: center;
+    align-items: center;
+}
+
+.header-button {
+    color: gray;
+}
+
+    .header-button.oi-x:hover {
+        color: rgb(250, 42, 42);
+    }
+
+    .header-button.oi-pencil:hover {
+        color: #007bff;
+    }
+
+.copy-button {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 100%;
+    line-height: 1;
+    box-shadow: 2px 2px 5px 0px rgb(25,25,25);
+    transition: all .25s;
+}
+
+    .copy-button:hover {
+        background-color: #8d30c4;
+        color: white;
+        transition: all .25s;
+    }

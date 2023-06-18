@@ -20,7 +20,7 @@ else
         {
             <div class="lead mt-4">
                 @folder.Name
-                <button type="button" class="close ml-4" aria-hidden="true" style="float:none" title="Delete Folder"
+                <button type="button" class="close ms-4" aria-hidden="true" style="float:none" title="Delete Folder"
                         @onclick="async () => await DeleteFolder(folder)">&times;</button>
             </div>
             @foreach (var clip in Clips

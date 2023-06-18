@@ -2,11 +2,15 @@
 @inject IToastService Toasts
 @inject HttpClient Http
 
-<div class="card border-secondary my-3 mr-3 clip-card" style="width: 20rem; position:unset;">
-    <div class="card-header small">
-        @ClipData.Timestamp.LocalDateTime.ToString()
-        <i class="oi oi-x float-right header-button ml-3" title="Delete" @onclick="DeleteClicked"></i>
-        <i class="oi oi-pencil float-right header-button" title="Edit Text" @onclick="ShowEditModal"></i>
+<div class="card border-secondary my-3 me-3 clip-card">
+    <div class="card-header small header-grid">
+        <div>
+            @ClipData.Timestamp.LocalDateTime.ToString()
+        </div>
+        <div>
+            <i class="oi oi-pencil float-right header-button" title="Edit Text" @onclick="ShowEditModal"></i>
+            <i class="oi oi-x float-right header-button ms-2" title="Delete" @onclick="DeleteClicked"></i>
+        </div>
     </div>
     <div class="card-body">
         <div class="text-center mb-4">
