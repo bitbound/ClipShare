@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 <RemoteAuthenticatorView Action="@Action" />
 
-@code{
-    [Parameter] public string Action { get; set; }
+@code {
+    [Parameter]
+    public string Action { get; set; } = string.Empty;
 }

@@ -6,27 +6,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ClipShare.Server.Services
+namespace ClipShare.Server.Services;
+
+public class DbLoggerProvider : ILoggerProvider
 {
-    public class DbLoggerProvider : ILoggerProvider
+    private readonly IWebHostEnvironment hostEnvironment;
+    private readonly IServiceProvider serviceProvider;
+
+    public DbLoggerProvider(IWebHostEnvironment hostEnvironment, IServiceProvider serviceProvider)
     {
-        private readonly IWebHostEnvironment hostEnvironment;
-        private readonly IServiceProvider serviceProvider;
-
-        public DbLoggerProvider(IWebHostEnvironment hostEnvironment, IServiceProvider serviceProvider)
-        {
-            this.hostEnvironment = hostEnvironment;
-            this.serviceProvider = serviceProvider;
-        }
+        this.hostEnvironment = hostEnvironment;
+        this.serviceProvider = serviceProvider;
+    }
 
 
-        public ILogger CreateLogger(string categoryName)
-        {
-            return new DbLogger(categoryName, hostEnvironment, serviceProvider);
-        }
+    public ILogger CreateLogger(string categoryName)
+    {
+        return new DbLogger(categoryName, hostEnvironment, serviceProvider);
+    }
 
-        public void Dispose()
-        {
-        }
+    public void Dispose()
+    {
     }
 }

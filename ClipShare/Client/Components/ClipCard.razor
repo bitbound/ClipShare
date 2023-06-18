@@ -1,6 +1,7 @@
 ﻿@inject IClipboardService Clipboard
 @inject IToastService Toasts
-@inject HttpClient Http
+@inject IClipStore ClipStore
+@inject ILogger<ClipCard> Logger
 
 <div class="card border-secondary my-3 me-3 clip-card">
     <div class="card-header small header-grid">
@@ -14,7 +15,7 @@
     </div>
     <div class="card-body">
         <div class="text-center mb-4">
-            <i class="oi oi-clipboard copy-button" title="Copy Text" @onclick="CopyText"></i>
+            <i class="oi oi-clipboard copy-button bg-secondary" title="Copy Text" @onclick="CopyText"></i>
         </div>
         <p class="card-text">@GetDisplayContent()</p>
 
@@ -22,14 +23,14 @@
 </div>
 
 <Modal Header="Edit Clip" OkButtonText="Save" @ref="ClipModal" OnModalOkayed="SaveEdits" OnModalCancelled="CancelEdits">
-    <EditForm EditContext="editContext">
+    <EditForm EditContext="_editContext">
         <DataAnnotationsValidator />
         <ValidationSummary />
         <h5>Content</h5>
         <div class="form-group">
             <InputTextArea class="w-100" @bind-Value="ClipData.Content"></InputTextArea>
         </div>
-        <h5>Archive to Folder</h5>
+        <h5 class="mt-3">Archive to Folder</h5>
         <div class="form-group">
             <select class="form-control" @bind="ClipData.ArchiveFolderId">
 
@@ -38,7 +39,7 @@
                     <option value="">Select an archive folder...</option>
                 }
 
-                @foreach (var archive in ArchiveFolders.OrderBy(x=>x.Name))
+                @foreach (var archive in ArchiveFolders.OrderBy(x => x.Name))
                 {
                     if (archive.Id == ClipData.ArchiveFolderId)
                     {
@@ -51,8 +52,13 @@
                 }
             </select>
         </div>
-        <div class="form-group">
-            <input @bind="newArchiveName" @bind:event="oninput" class="form-control" placeholder="Create a new archive folder..." />
+
+        <div class="mt-2">
+            or
+        </div>
+
+        <div class="form-group mt-2">
+            <input @bind="_newArchiveName" @bind:event="oninput" class="form-control" placeholder="Create a new archive folder..." />
             <div class="text-right mt-2">
                 <button class="btn btn-secondary" @onclick="CreateNewArchiveFolder">Add</button>
             </div>
@@ -62,11 +68,13 @@
 
 @code {
 
-    private EditContext editContext;
+    #nullable disable
+    private EditContext _editContext;
+    #nullable enable
 
-    private string previousContent;
+    private string _previousContent = string.Empty;
 
-    private string newArchiveName;
+    private string _newArchiveName = string.Empty;
 
     [Parameter]
     public EventCallback<Clip> OnClipChanged { get; set; }
@@ -77,55 +85,61 @@
     [Parameter]
     public List<ArchiveFolder> ArchiveFolders { get; set; } = new List<ArchiveFolder>();
 
+    #nullable disable
     [Parameter]
     public Clip ClipData { get; set; }
 
     private Modal ClipModal { get; set; }
+    #nullable enable
 
     private Task CancelEdits()
     {
-        ClipData.Content = previousContent;
+        ClipData.Content = _previousContent;
         return Task.CompletedTask;
     }
 
     private async Task CopyText()
     {
-        await Clipboard.SetClipboardText(ClipData.Content);
-        Toasts.ShowToast("Copied to clipboard!", TimeSpan.FromSeconds(3));
+        try
+        {
+            await Clipboard.SetClipboardText(ClipData.Content);
+            Toasts.ShowToast("Copied to clipboard!", TimeSpan.FromSeconds(3));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error while copying clipboard text.");
+            Toasts.ShowToast("Failed to copy clipboard.", "bg-danger");
+        }
     }
 
     private async Task CreateNewArchiveFolder()
     {
-        if (string.IsNullOrWhiteSpace(newArchiveName))
+        if (string.IsNullOrWhiteSpace(_newArchiveName))
         {
             Toasts.ShowToast("Archive folder name required.", TimeSpan.FromSeconds(3), "bg-warning");
             return;
         }
-        if (newArchiveName.Length > ArchiveFolder.MaxNameLength)
+        if (_newArchiveName.Length > ArchiveFolder.MaxNameLength)
         {
             Toasts.ShowToast($"Name must be less than {ArchiveFolder.MaxNameLength} characters.", TimeSpan.FromSeconds(3), "bg-warning");
             return;
         }
 
-        var response = await Http.PostAsJsonAsync("Archives", newArchiveName);
-        if (response.IsSuccessStatusCode)
+        var newFolder = await ClipStore.CreateFolder(_newArchiveName);
+        if (newFolder is not null)
         {
-            var newFolder = await response.Content.ReadFromJsonAsync<ArchiveFolder>();
-            if (newFolder != null)
-            {
-                ArchiveFolders.Add(newFolder);
-            }
+            ArchiveFolders.Add(newFolder);
         }
 
-        newArchiveName = null;
+        _newArchiveName = string.Empty;
 
         StateHasChanged();
     }
 
     private async Task DeleteClicked()
     {
-        var response = await Http.DeleteAsync($"Clips?id={ClipData.Id}");
-        if (response.IsSuccessStatusCode)
+        var deleteResult = await ClipStore.DeleteClip(ClipData.Id);
+        if (deleteResult)
         {
             await OnClipDeleted.InvokeAsync(ClipData);
         }
@@ -146,31 +160,31 @@
 
     private async Task SaveEdits()
     {
-        if (!editContext.Validate())
+        if (!_editContext.Validate())
         {
-            ClipData.Content = previousContent;
+            ClipData.Content = _previousContent;
             Toasts.ShowToast("Clipboard is too large.", TimeSpan.FromSeconds(3), "bg-danger");
             StateHasChanged();
             return;
         }
 
         ClipData.ArchiveFolder = ArchiveFolders.Find(x => x.Id == ClipData.ArchiveFolderId);
-        var response = await Http.PutAsJsonAsync("Clips", ClipData, System.Threading.CancellationToken.None);
-        if (response.IsSuccessStatusCode)
+        var updateResult = await ClipStore.UpdateClip(ClipData);
+        if (updateResult)
         {
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
             await OnClipChanged.InvokeAsync(ClipData);
         }
     }
 
     private void ShowEditModal()
     {
-        previousContent = ClipData.Content;
+        _previousContent = ClipData.Content;
         ClipModal.ShowModal();
     }
 
     protected override void OnInitialized()
     {
-        editContext = new EditContext(ClipData);
+        _editContext = new EditContext(ClipData);
     }
 }

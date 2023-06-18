@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
+using Duende.IdentityServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -59,7 +60,8 @@ else
 {
     app.Use(async (ctx, next) =>
     {
-        ctx.SetIdentityServerOrigin(app.Configuration["PublicOrigin"]);
+        var serverUrls = app.Services.GetRequiredService<IServerUrls>();
+        serverUrls.Origin = app.Configuration["PublicOrigin"];
         await next();
     });
     app.UseExceptionHandler("/Error");

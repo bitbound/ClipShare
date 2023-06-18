@@ -4,31 +4,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ClipShare.Client.Services
+namespace ClipShare.Client.Services;
+
+public interface IClipboardService
 {
-    public interface IClipboardService
+    Task<string> GetClipboardText();
+    Task SetClipboardText(string text);
+}
+
+public class ClipboardService : IClipboardService
+{
+    public ClipboardService(IJSRuntime jsRuntime)
     {
-        Task<string> GetClipboardText();
-        Task SetClipboardText(string text);
+        JSRuntime = jsRuntime;
     }
 
-    public class ClipboardService : IClipboardService
+    private IJSRuntime JSRuntime { get; }
+
+    public async Task<string> GetClipboardText()
     {
-        public ClipboardService(IJSRuntime jsRuntime)
-        {
-            JSRuntime = jsRuntime;
-        }
+        return await JSRuntime.InvokeAsync<string>("getClipboard");
+    }
 
-        private IJSRuntime JSRuntime { get; }
-
-        public async Task<string> GetClipboardText()
-        {
-            return await JSRuntime.InvokeAsync<string>("getClipboard");
-        }
-
-        public async Task SetClipboardText(string text)
-        {
-            await JSRuntime.InvokeAsync<string>("setClipboard", text);
-        }
+    public async Task SetClipboardText(string text)
+    {
+        await JSRuntime.InvokeAsync<string>("setClipboard", text);
     }
 }

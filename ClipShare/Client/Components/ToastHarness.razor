@@ -2,11 +2,11 @@
 
 <div class="toast-harness">
     @foreach (var toast in Toasts)
-    {
-        <div class="toast-message @toast.ClassString" style="animation-delay: @(toast.Expiration.TotalMilliseconds.ToString() + "ms"); @toast.StyleOverrides">
+{
+    <div class="toast-message @toast.ClassString" style="animation-delay: @(toast.Expiration.TotalMilliseconds.ToString() + "ms"); @toast.StyleOverrides">
             @toast.Message
         </div>
-    }
+}
 </div>
 
 <style>
@@ -52,15 +52,15 @@
 
 @code {
 
-    private List<ClipShare.Client.Models.Toast> Toasts { get; set; } = new List<Models.Toast>();
+private List<ClipShare.Client.Models.Toast> Toasts { get; set; } = new List<Models.Toast>();
 
-    protected override Task OnInitializedAsync()
+protected override Task OnInitializedAsync()
+{
+    ToastService.OnToastsChanged += (s, e) =>
     {
-        ToastService.OnToastsChanged += (s, e) =>
-        {
-            Toasts = ToastService.Toasts;
-            StateHasChanged();
-        };
-        return base.OnInitializedAsync();
-    }
+        Toasts = ToastService.Toasts;
+        StateHasChanged();
+    };
+    return base.OnInitializedAsync();
+}
 }

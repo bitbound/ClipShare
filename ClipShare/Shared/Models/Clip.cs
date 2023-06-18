@@ -5,27 +5,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace ClipShare.Shared.Models
+namespace ClipShare.Shared.Models;
+
+public class Clip
 {
-    public class Clip
-    {
-        public const int MaxContentLength = 5_000;
+    public const int MaxContentLength = 5_000;
 
-        [StringLength(MaxContentLength)]
-        public string Content { get; set; }
+    [StringLength(MaxContentLength)]
+    public string Content { get; set; } = string.Empty;
 
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; init; }
 
-        public DateTimeOffset Timestamp { get; set; }
+    public DateTimeOffset Timestamp { get; set; }
 
-        public ClipsUser User { get; set; }
+    public ClipsUser User { get; set; } = null!;
 
-        public string UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
 
-        public ArchiveFolder ArchiveFolder { get; set; }
+    public ArchiveFolder? ArchiveFolder { get; set; }
 
-        public int? ArchiveFolderId { get; set; }
-    }
+    public int? ArchiveFolderId { get; set; }
 }

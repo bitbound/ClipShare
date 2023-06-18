@@ -9,43 +9,42 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClipShare.Tests
+namespace ClipShare.Tests;
+
+public class TestData
 {
-    public class TestData
+    public static ClipsUser User1 { get; private set; } = null!;
+
+    public static ClipsUser User2 { get; private set; } = null!;
+
+
+    public static async Task PopulateTestData()
     {
-        public static ClipsUser User1 { get; private set; }
+        ClearData();
 
-        public static ClipsUser User2 { get; private set; }
-
-
-        public static async Task PopulateTestData()
+        User1 = new ClipsUser()
         {
-            ClearData();
-
-            User1 = new ClipsUser()
-            {
-                UserName = "testuser1@test.com"
-            };
-            User2 = new ClipsUser()
-            {
-                UserName = "testuser2@test.com"
-            };
-
-            var userManager = IoCActivator.ServiceProvider.GetRequiredService<UserManager<ClipsUser>>();
-
-
-            await userManager.CreateAsync(User1);
-            await userManager.CreateAsync(User2);
-        }
-
-        private static void ClearData()
+            UserName = "testuser1@test.com"
+        };
+        User2 = new ClipsUser()
         {
-            var dbContext = IoCActivator.ServiceProvider.GetRequiredService<AppDb>();
-            dbContext.Clips.RemoveRange(dbContext.Clips.ToList());
-            dbContext.ArchiveFolders.RemoveRange(dbContext.ArchiveFolders.ToList());
-            dbContext.Users.RemoveRange(dbContext.Users.ToList());
-            dbContext.SaveChanges();
+            UserName = "testuser2@test.com"
+        };
 
-        }
+        var userManager = IoCActivator.ServiceProvider.GetRequiredService<UserManager<ClipsUser>>();
+
+
+        await userManager.CreateAsync(User1);
+        await userManager.CreateAsync(User2);
+    }
+
+    private static void ClearData()
+    {
+        var dbContext = IoCActivator.ServiceProvider.GetRequiredService<AppDb>();
+        dbContext.Clips.RemoveRange(dbContext.Clips.ToList());
+        dbContext.ArchiveFolders.RemoveRange(dbContext.ArchiveFolders.ToList());
+        dbContext.Users.RemoveRange(dbContext.Users.ToList());
+        dbContext.SaveChanges();
+
     }
 }

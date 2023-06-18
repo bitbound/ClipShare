@@ -2,79 +2,72 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @attribute [Authorize]
-@inject HttpClient Http
+@inject IClipStore ClipStore
 @inject IJSRuntime JsRuntime
 
 <h2>Archive</h2>
 
-@if (!dataLoaded)
+@if (!_dataLoaded)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-<div class="mt-4">
-    @if (Clips.Count > 0)
-    {
-        foreach (var folder in ArchiveFolders.OrderBy(x => x.Name))
+    <div class="mt-4">
+        @if (_archiveFolders.Any())
         {
-            <div class="lead mt-4">
-                @folder.Name
-                <button type="button" class="close ms-4" aria-hidden="true" style="float:none" title="Delete Folder"
-                        @onclick="async () => await DeleteFolder(folder)">&times;</button>
-            </div>
-            @foreach (var clip in Clips
-               .Where(x => x.ArchiveFolderId == folder.Id)
-               .OrderByDescending(x => x.Timestamp))
+            foreach (var folder in _archiveFolders.OrderBy(x => x.Name))
             {
-                <ClipCard ClipData="clip" ArchiveFolders="ArchiveFolders" OnClipDeleted="ClipDeleted" OnClipChanged="ClipChanged"></ClipCard>
+                <div class="lead mt-4">
+                    @folder.Name
+                    <button type="button" 
+                        class="btn btn-sm btn-danger ms-4" 
+                        aria-hidden="true" 
+                        style="float:none" 
+                        title="Delete Folder"
+                        @onclick="async () => await DeleteFolder(folder)">
+                        &times;
+                    </button>
+                </div>
+                @foreach (var clip in _clips
+                   .Where(x => x.ArchiveFolderId == folder.Id)
+                   .OrderByDescending(x => x.Timestamp))
+                {
+                    <ClipCard ClipData="clip" ArchiveFolders="_archiveFolders" OnClipDeleted="ClipDeleted" OnClipChanged="ClipChanged"></ClipCard>
+                }
             }
         }
-    }
-    else
-    {
-        <ClipCard ClipData="DemoClip"></ClipCard>
-    }
+        else
+        {
+            <p>Archive clips on the Recent page, and they will show up here.</p>
+        }
 
-</div>
+    </div>
 
 }
 
 @code {
-    bool dataLoaded;
+    private bool _dataLoaded;
 
-    private List<ArchiveFolder> ArchiveFolders { get; } = new List<ArchiveFolder>();
-
-    private List<Clip> Clips { get; } = new List<Clip>();
-
-    private Clip DemoClip
-    {
-        get
-        {
-            return new Clip()
-            {
-                Timestamp = DateTimeOffset.Now,
-                Content = "Click the Add button to start saving clips."
-            };
-        }
-    }
+    private readonly List<Clip> _clips = new();
+    private readonly List<ArchiveFolder> _archiveFolders = new();
 
     private void ClipAdded(Clip clip)
     {
-        Clips.Add(clip);
+        _clips.Add(clip);
     }
 
     private void ClipDeleted(Clip clipData)
     {
-        Clips.RemoveAll(x => x.Id == clipData.Id);
+        _clips.RemoveAll(x => x.Id == clipData.Id);
     }
 
     private void ClipChanged(Clip clipData)
     {
-        var index = Clips.FindIndex(x => x.Id == clipData.Id);
+        var index = _clips.FindIndex(x => x.Id == clipData.Id);
         if (index > -1)
         {
-            Clips[index] = clipData;
+            _clips[index] = clipData;
             StateHasChanged();
         }
     }
@@ -85,11 +78,11 @@ else
         var result = await JsRuntime.InvokeAsync<bool>("invokeConfirm", confirmMessage);
         if (result)
         {
-            var response = await Http.DeleteAsync($"Archives?folderId={folder.Id}");
-            if (response.IsSuccessStatusCode)
+            var deleteResult = await ClipStore.DeleteFolder(folder.Id);
+            if (deleteResult)
             {
-                ArchiveFolders.Remove(folder);
-                StateHasChanged();
+                _archiveFolders.Remove(folder);
+                await InvokeAsync(StateHasChanged);
             }
         }
     }
@@ -98,16 +91,16 @@ else
     {
         try
         {
-            var clips = await Http.GetFromJsonAsync<Clip[]>("Clips");
-            if (clips?.Any() == true)
+            var clips = await ClipStore.GetArchivedClips();
+            if (clips.Any())
             {
-                Clips.AddRange(clips);
+                _clips.AddRange(clips);
             }
 
-            var folders = await Http.GetFromJsonAsync<List<ArchiveFolder>>("Archives");
-            if (folders?.Any() == true)
+            var folders = await ClipStore.GetFolders();
+            if (folders.Any())
             {
-                ArchiveFolders.AddRange(folders);
+                _archiveFolders.AddRange(folders);
             }
         }
         catch (AccessTokenNotAvailableException exception)
@@ -116,7 +109,7 @@ else
         }
         finally
         {
-            dataLoaded = true;
+            _dataLoaded = true;
         }
     }
 }

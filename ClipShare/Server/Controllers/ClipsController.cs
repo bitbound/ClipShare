@@ -11,45 +11,63 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ClipShare.Server.Controllers
+namespace ClipShare.Server.Controllers;
+
+[Route("[controller]")]
+[ApiController]
+[Authorize]
+public class ClipsController : ControllerBase
 {
-    [Route("[controller]")]
-    [ApiController]
-    [Authorize]
-    public class ClipsController : ControllerBase
+    private readonly IDataService _dataService;
+
+    public ClipsController(IDataService dataService)
     {
-        public ClipsController(IDataService dataService)
-        {
-            DataService = dataService;
-        }
+        _dataService = dataService;
+    }
 
-        private IDataService DataService { get; }
+    [HttpDelete]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
+        await _dataService.DeleteClip(id, userId);
+        return NoContent();
+    }
 
-        [HttpDelete]
-        public Task Delete(int id)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Clip>>> Get()
+    {
+        var userId  = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return DataService.DeleteClip(id, userId);
+            return Unauthorized();
         }
+        var clips = await _dataService.GetClips(userId);
+        return Ok(clips);
+    }
 
-        [HttpGet]
-        public Task<IEnumerable<Clip>> Get()
+    [HttpPost]
+    public async Task<ActionResult<Clip?>> Post([FromBody]string clipContents)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
         {
-            var userId  = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return DataService.GetClips(userId);
+            return Unauthorized();
         }
-
-        [HttpPost]
-        public Task<Clip> Post([FromBody]string clipContents)
+        return await _dataService.AddClip(clipContents, userId);
+    }
+    [HttpPut]
+    public async Task<IActionResult> Put([FromBody]Clip clip)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return DataService.AddClip(clipContents, userId);
+            return Unauthorized();
         }
-        [HttpPut]
-        public Task Put([FromBody]Clip clip)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return DataService.UpdateClip(clip, userId);
-        }
+        await _dataService.UpdateClip(clip, userId);
+        return NoContent();
     }
 }

@@ -5,14 +5,13 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace ClipShare.Shared.Models
-{
-    public class ClipsUser : IdentityUser
-    {
-        [JsonIgnore]
-        public List<Clip> Clips { get; set; }
+namespace ClipShare.Shared.Models;
 
-        [JsonIgnore]
-        public List<ArchiveFolder> ArchiveFolders { get; set; }
-    }
+public class ClipsUser : IdentityUser
+{
+    [JsonIgnore]
+    public List<Clip> Clips { get; set; } = new();
+
+    [JsonIgnore]
+    public List<ArchiveFolder> ArchiveFolders { get; set; } = new();
 }

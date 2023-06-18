@@ -1,7 +1,8 @@
-﻿@using ClipShare.Shared.Models 
+﻿@using ClipShare.Shared.Models
 @inject IClipboardService ClipboardService
 @inject IToastService ToastService
-@inject HttpClient HttpClient
+@inject IClipStore ClipStore
+@inject ILogger<AddClipButton> Logger
 
 <div class="floating-button bg-primary text-white" title="Add Clip" @onclick="AddClip">
     <i class="oi oi-plus"></i>
@@ -16,22 +17,30 @@
 
     public async Task AddClip()
     {
-        var currentContent = await ClipboardService.GetClipboardText();
-        if (string.IsNullOrWhiteSpace(currentContent))
+        try
         {
-            ToastService.ShowToast("Clipboard is empty.", TimeSpan.FromSeconds(3), "bg-warning");
-            return;
+            var currentContent = await ClipboardService.GetClipboardText();
+            if (string.IsNullOrWhiteSpace(currentContent))
+            {
+                ToastService.ShowToast("Clipboard is empty.", TimeSpan.FromSeconds(3), "bg-warning");
+                return;
+            }
+            if (currentContent.Length > Clip.MaxContentLength)
+            {
+                ToastService.ShowToast("Clipboard is too large.", TimeSpan.FromSeconds(3), "bg-warning");
+                return;
+            }
+
+            var resultClip = await ClipStore.CreateClip(currentContent);
+            if (resultClip is not null)
+            {
+                await OnClipAdded.InvokeAsync(resultClip);
+            }
         }
-        if (currentContent.Length > Clip.MaxContentLength)
+        catch (Exception ex)
         {
-            ToastService.ShowToast("Clipboard is too large.", TimeSpan.FromSeconds(3), "bg-warning");
-            return;
-        }
-        var response = await HttpClient.PostAsJsonAsync("Clips", currentContent);
-        var clip = await response.Content.ReadFromJsonAsync<Clip>();
-        if (clip != null)
-        {
-            await OnClipAdded.InvokeAsync(clip);
+            Logger.LogError(ex, "Error while getting clipboard text.");
+            ToastService.ShowToast("Failed to get clipboard content.", "bg-danger");
         }
     }
 } 

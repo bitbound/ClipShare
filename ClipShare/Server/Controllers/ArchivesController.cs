@@ -9,39 +9,54 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ClipShare.Server.Controllers
+namespace ClipShare.Server.Controllers;
+
+[Route("[controller]")]
+[ApiController]
+[Authorize]
+public class ArchivesController : ControllerBase
 {
-    [Route("[controller]")]
-    [ApiController]
-    [Authorize]
-    public class ArchivesController : ControllerBase
+    private readonly IDataService _dataService;
+
+    public ArchivesController(IDataService dataService)
     {
-        public ArchivesController(IDataService dataService)
+        _dataService = dataService;
+    }
+
+
+    [HttpDelete]
+    public async Task<IActionResult> Delete(int folderId)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
         {
-            DataService = dataService;
+            return Unauthorized();
         }
 
-        private IDataService DataService { get; }
+        await _dataService.DeleteArchive(folderId, userId);
+        return NoContent();
+    }
 
-        [HttpDelete]
-        public Task Delete(int folderId)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ArchiveFolder>>> Get()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return DataService.DeleteArchive(folderId, userId);
+            return Unauthorized();
         }
+        var folders = await _dataService.GetArchiveFolders(userId);
+        return Ok(folders);
+    }
 
-        [HttpGet]
-        public IEnumerable<ArchiveFolder> Get()
+    [HttpPost]
+    public async Task<ActionResult<ArchiveFolder?>> Post([FromBody] string archiveFolderName)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return DataService.GetArchiveFolders(userId);
+            return Unauthorized();
         }
-
-        [HttpPost]
-        public Task<ArchiveFolder> Post([FromBody] string archiveFolderName)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return DataService.AddArchiveFolder(archiveFolderName, userId);
-        }
+        return await _dataService.AddArchiveFolder(archiveFolderName, userId);
     }
 }

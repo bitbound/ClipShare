@@ -2,38 +2,39 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @attribute [Authorize]
+@inject IClipStore ClipStore
 @inject HttpClient Http
 
 <h2>Recent Clips</h2>
 
 <AddClipButton OnClipAdded="ClipAdded"></AddClipButton>
 
-@if (!dataLoaded)
+@if (!_dataLoaded)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
     <div class="mt-4">
-        @if (Clips.Any(x => x.ArchiveFolder == null))
+        @if (_clips.Any(x => x.ArchiveFolder == null))
         {
-            foreach (var group in Clips
-                .Where(x => x.ArchiveFolder == null)
-                .OrderByDescending(x => x.Timestamp)
-                .GroupBy(x => x.Timestamp.Date))
+            foreach (var group in _clips
+            .Where(x => x.ArchiveFolder == null)
+            .OrderByDescending(x => x.Timestamp)
+            .GroupBy(x => x.Timestamp.Date))
             {
                 <div class="lead mt-4">@group.Key.ToShortDateString()</div>
                 <div class="row">
                     @foreach (var clip in group)
                     {
-                        <ClipCard ClipData="clip" ArchiveFolders="ArchiveFolders" OnClipDeleted="ClipDeleted" OnClipChanged="ClipChanged"></ClipCard>
+                        <ClipCard ClipData="clip" ArchiveFolders="_archiveFolders" OnClipDeleted="ClipDeleted" OnClipChanged="ClipChanged"></ClipCard>
                     }
                 </div>
             }
         }
         else
         {
-            <ClipCard ClipData="DemoClip"></ClipCard>
+            <ClipCard ClipData="_demoClip"></ClipCard>
         }
 
     </div>
@@ -41,58 +42,52 @@ else
 }
 
 @code {
-    bool dataLoaded;
-
-    private List<ArchiveFolder> ArchiveFolders { get; } = new List<ArchiveFolder>();
-
-    private List<Clip> Clips { get; } = new List<Clip>();
-
-    private Clip DemoClip
+    private readonly Clip _demoClip = new Clip()
     {
-        get
-        {
-            return new Clip()
-            {
-                Timestamp = DateTimeOffset.Now,
-                Content = "Click the Add button to start saving clips."
-            };
-        }
-    }
+        Timestamp = DateTimeOffset.Now,
+        Content = "Click the Add button to start saving clips."
+    };
+
+    private readonly List<ArchiveFolder> _archiveFolders = new();
+    private readonly List<Clip> _clips = new();
+
+    private bool _dataLoaded;
+
 
     private void ClipAdded(Clip clip)
     {
-        Clips.Add(clip);
+        _clips.Add(clip);
     }
 
     private void ClipChanged(Clip clipData)
     {
-        var index = Clips.FindIndex(x => x.Id == clipData.Id);
+        var index = _clips.FindIndex(x => x.Id == clipData.Id);
         if (index > -1)
         {
-            Clips[index] = clipData;
+            _clips[index] = clipData;
             StateHasChanged();
         }
     }
 
     private void ClipDeleted(Clip clipData)
     {
-        Clips.RemoveAll(x => x.Id == clipData.Id);
+        _clips.RemoveAll(x => x.Id == clipData.Id);
     }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var clips = await Http.GetFromJsonAsync<Clip[]>("Clips");
-            if (clips?.Any() == true)
+            var clips = await ClipStore.GetUnarchivedClips();
+            if (clips.Any())
             {
-                Clips.AddRange(clips);
+                _clips.AddRange(clips);
             }
 
-            var folders = await Http.GetFromJsonAsync<List<ArchiveFolder>>("Archives");
-            if (folders?.Any() == true)
+            var folders = await ClipStore.GetFolders();
+            if (folders.Any())
             {
-                ArchiveFolders.AddRange(folders);
+                _archiveFolders.AddRange(folders);
             }
         }
         catch (AccessTokenNotAvailableException exception)
@@ -101,7 +96,7 @@ else
         }
         finally
         {
-            dataLoaded = true;
+            _dataLoaded = true;
         }
     }
 

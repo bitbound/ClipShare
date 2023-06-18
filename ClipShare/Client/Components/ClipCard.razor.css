@@ -39,12 +39,12 @@
     padding: 10px;
     border-radius: 100%;
     line-height: 1;
-    box-shadow: 2px 2px 5px 0px rgb(25,25,25);
+    box-shadow: 2px 2px 5px 0px black;
     transition: all .25s;
 }
 
     .copy-button:hover {
-        background-color: #8d30c4;
+        background-color: #8d30c4 !important;
         color: white;
         transition: all .25s;
     }

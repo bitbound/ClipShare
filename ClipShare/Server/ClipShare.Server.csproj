@@ -4,6 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <UserSecretsId>ClipShare.Server-F8A9800D-302D-4904-8CCB-8CEC8C2DE459</UserSecretsId>
     <AssemblyName>ClipShare</AssemblyName>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

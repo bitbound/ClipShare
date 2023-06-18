@@ -5,7 +5,7 @@
     padding: 10px;
     border-radius: 100%;
     line-height: 1;
-    box-shadow: 2px 2px 5px 0px rgb(25,25,25);
+    box-shadow: 2px 2px 5px 0px black;
     transition: background-color .5s;
 }
 

@@ -5,16 +5,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ClipShare.Server.Controllers
+namespace ClipShare.Server.Controllers;
+
+[Route("[controller]")]
+[ApiController]
+public class AccountController : ControllerBase
 {
-    [Route("[controller]")]
-    [ApiController]
-    public class AccountController : ControllerBase
+    [HttpGet("[action]")]
+    public bool IsLoggedIn()
     {
-        [HttpGet("[action]")]
-        public bool IsLoggedIn()
-        {
-            return User.Identity.IsAuthenticated;
-        }
+        return User.Identity?.IsAuthenticated == true;
     }
 }

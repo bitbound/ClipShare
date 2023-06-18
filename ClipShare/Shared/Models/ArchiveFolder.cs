@@ -5,24 +5,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace ClipShare.Shared.Models
+namespace ClipShare.Shared.Models;
+
+public class ArchiveFolder
 {
-    public class ArchiveFolder
-    {
-        public const int MaxNameLength = 300;
+    public const int MaxNameLength = 300;
 
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; init; }
 
-        [JsonIgnore]
-        public List<Clip> Clips { get; set; }
+    [JsonIgnore]
+    public List<Clip> Clips { get; set; } = new();
 
-        [StringLength(MaxNameLength)]
-        public string Name { get; set; }
+    [StringLength(MaxNameLength)]
+    public string Name { get; set; } = string.Empty;
 
-        public ClipsUser User { get; set; }
+    public ClipsUser User { get; set; } = null!;
 
-        public string UserId { get; set; }
-    }
+    public string UserId { get; set; } = null!;
 }
