@@ -1,14 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using ClipShare.Server.Models
+@using ClipShare.Shared.Models
 @inject SignInManager<ClipsUser> SignInManager
 @inject UserManager<ClipsUser> UserManager
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
     var returnUrl = "/";
-if (Context.Request.Query.TryGetValue("returnUrl", out var existingUrl)) {
-    returnUrl = existingUrl;
-}
+    if (Context.Request.Query.TryGetValue("returnUrl", out var existingUrl)) {
+        returnUrl = existingUrl;
+    }
 }
 
 <ul class="navbar-nav">
