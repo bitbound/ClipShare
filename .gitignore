@@ -342,3 +342,4 @@ healthchecksdb
 /ClipShare/Server/ClipShare.db-shm
 /ClipShare/Server/ClipShare.db-wal
 /ClipShare/Server/ScaffoldingReadMe.txt
+/ClipShare/Server/publish.cmd
